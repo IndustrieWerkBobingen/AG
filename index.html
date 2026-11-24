@@ -61,6 +61,7 @@ h3{font-size:14px;font-weight:600;margin:16px 0 6px;color:var(--blau-dunkel)}
 .kz.warn{border-top-color:var(--rot)} .kz.warn b{color:var(--rot)}
 .kz.gelb{border-top-color:var(--gelb)} .kz.gelb b{color:var(--gelb)}
 .kz.gruen{border-top-color:var(--gruen)} .kz.gruen b{color:var(--gruen)}
+.kz.blau{border-top-color:var(--blau)} .kz.blau b{color:var(--blau)}
 table.liste{width:100%;border-collapse:collapse;font-size:13.5px}
 table.liste th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-hell);
   border-bottom:2px solid var(--grau-linie);padding:7px 9px;white-space:nowrap;background:#fff;position:sticky;top:0}
@@ -1713,10 +1714,17 @@ function einsichtBauen(sid, stand){
   const g = q.gruppen[s.gid] || {};
   const liste = Object.values(q.einheiten).filter(e => e.gid === s.gid && e.status === 'frei')
     .sort((a,b) => String(a.datum||'').localeCompare(String(b.datum||'')));
+  /* Alle noch nicht abgeschlossenen Termine mitgeben – gefiltert wird erst beim Anzeigen,
+     damit die Liste nicht veraltet, wenn länger nichts geschrieben wurde. */
+  const termine = Object.values(q.einheiten)
+    .filter(e => e.gid === s.gid && e.status !== 'frei' && e.datum)
+    .sort((a,b) => String(a.datum).localeCompare(String(b.datum)))
+    .map(e => ({ nr:e.nr, titel:e.titel, datum:e.datum }));
   return {
     code: s.code, sid: sid, name: s.vorname + ' ' + s.nachname, klasse: s.klasse || '',
     gruppe: g.name || '', schule: g.schule || '', schuljahr: g.schuljahr || '',
     aktualisiert: new Date().toISOString(),
+    termine: termine,
     einheiten: liste.map(e => {
       const k = e.id + '_' + sid;
       const a = q.anw[k] || {}, b = q.bew[k] || {}, t = q.antw[k] || {};
@@ -2794,8 +2802,21 @@ function elternSeite(){
   let h = '<section><h1>'+esc(d.name)+'</h1><p class="sub">'+esc(d.gruppe||'')+(d.schule?' · '+esc(d.schule):'')+(d.schuljahr?' · '+esc(d.schuljahr):'')+'</p>';
   const eh = d.einheiten || [];
   const da = eh.filter(e => e.anwesend === 'da').length;
-  h += '<div class="kennzahlen">'+kz(eh.length,'freigegebene Einheiten')+kz(da+' / '+eh.length,'anwesend','gruen')+'</div>';
-  if(!eh.length) return el('haupt').innerHTML = h + leerHinweis('Noch nichts freigegeben','Sobald die erste Einheit abgeschlossen und freigegeben ist, erscheint sie hier.') + '</section>';
+  const heuteStr = heute();
+  const kommend = (d.termine || []).filter(t => t.datum >= heuteStr);
+  h += '<div class="kennzahlen">'+kz(eh.length,'freigegebene Einheiten')+kz(da+' / '+eh.length,'anwesend','gruen')+
+    (kommend.length ? kz(datumDe(kommend[0].datum),'nächster Termin','blau') : '')+'</div>';
+
+  if(kommend.length){
+    h += '<div class="karte"><h2>Die nächsten Termine</h2>'+
+      '<div style="overflow:auto"><table class="liste"><thead><tr><th style="width:120px">Datum</th><th style="width:150px">Einheit</th><th>Thema</th></tr></thead><tbody>'+
+      kommend.map((t, i) => '<tr'+(i === 0 ? ' style="background:var(--blau-hell)"' : '')+'>'+
+        '<td><b>'+datumDe(t.datum)+'</b></td><td>'+esc(nrText(t.nr))+'</td><td>'+esc(t.titel||'')+'</td></tr>').join('')+
+      '</tbody></table></div>'+
+      '<p class="formhinweis" style="margin-top:10px">Termine können sich kurzfristig ändern – maßgeblich ist die Information über die Schule.</p></div>';
+  }
+  if(!eh.length) return el('haupt').innerHTML = h +
+    leerHinweis('Noch nichts freigegeben','Sobald die erste Einheit abgeschlossen und freigegeben ist, erscheint sie hier mit Rückmeldung und Arbeitsblatt.') + '</section>';
 
   h += '<div class="karte"><h2>Bewertung über das Jahr</h2><div style="overflow:auto"><table class="liste"><thead><tr><th style="min-width:220px">Kriterium</th>'+
     eh.map(e => '<th class="mitte" title="'+esc(e.titel||'')+'">'+esc(String(e.nr))+'</th>').join('')+'</tr></thead><tbody>';
