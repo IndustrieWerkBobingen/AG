@@ -2456,6 +2456,12 @@ function ansEinstellungen(){
     '<div><label>Passwort (nur bei neuem Konto)</label><input id="bnPass" type="text" placeholder="mindestens 6 Zeichen"></div></div>'+
     '<button class="btn" onclick="benutzerAnlegen()">Anlegen</button><div id="bnStatus"></div></div>';
 
+  h += '<div class="karte"><h2>Einsicht für Eltern aktualisieren</h2>'+
+    '<p class="sub">Die Seiten für Schüler und Eltern werden bei jeder Änderung automatisch neu geschrieben. '+
+    'Nach einer neuen Fassung dieser Datei kann es nötig sein, sie einmal von Hand aufzufrischen – '+
+    'zum Beispiel, damit die geplanten Termine erscheinen.</p>'+
+    '<div class="werkzeuge"><button class="btn" onclick="einsichtAuffrischen()">Jetzt auffrischen</button></div></div>';
+
   h += '<div class="karte"><h2>Verbindung und Rechte prüfen</h2>'+
     '<p class="sub">Testet für jede Sammlung, ob Lesen und Schreiben erlaubt ist. '+
     'Bei der Meldung „Missing or insufficient permissions“ zeigt dieser Test, an welcher Stelle es klemmt.</p>'+
@@ -2519,6 +2525,15 @@ function sicherungLaden(inp){
       Object.keys(D).forEach(k => D[k] = o[k] || {}); lokalSpeichern(); alles(); toast('Eingespielt');
     } catch(e){ toast('Datei konnte nicht gelesen werden'); } };
   r.readAsText(f); inp.value = '';
+}
+
+/* Alle Einsichtsseiten neu schreiben – nötig nach einer neuen Fassung der Datei */
+function einsichtAuffrischen(){
+  const sch = Object.values(D.schueler).filter(s => s.code);
+  if(!sch.length) return toast('Keine Schüler vorhanden');
+  const ops = sch.map(s => ['set','einsicht', s.code, einsichtBauen(s.id)]);
+  schreibe(ops).then(() => toast(sch.length + ' Einsichtsseiten aufgefrischt'))
+    .catch(() => toast('Das hat nicht geklappt – bitte die Rechte prüfen'));
 }
 
 /* ---------- Selbsttest für Rechte und Regeln ---------- */
@@ -2803,17 +2818,26 @@ function elternSeite(){
   const eh = d.einheiten || [];
   const da = eh.filter(e => e.anwesend === 'da').length;
   const heuteStr = heute();
-  const kommend = (d.termine || []).filter(t => t.datum >= heuteStr);
-  h += '<div class="kennzahlen">'+kz(eh.length,'freigegebene Einheiten')+kz(da+' / '+eh.length,'anwesend','gruen')+
+  const geplant = (d.termine || []).slice().sort((a,b) => String(a.datum).localeCompare(String(b.datum)));
+  const kommend = geplant.filter(t => t.datum >= heuteStr);
+  h += '<div class="kennzahlen">'+kz(eh.length,'abgeschlossene Einheiten')+kz(da+' / '+eh.length,'anwesend','gruen')+
     (kommend.length ? kz(datumDe(kommend[0].datum),'nächster Termin','blau') : '')+'</div>';
 
-  if(kommend.length){
-    h += '<div class="karte"><h2>Die nächsten Termine</h2>'+
-      '<div style="overflow:auto"><table class="liste"><thead><tr><th style="width:120px">Datum</th><th style="width:150px">Einheit</th><th>Thema</th></tr></thead><tbody>'+
-      kommend.map((t, i) => '<tr'+(i === 0 ? ' style="background:var(--blau-hell)"' : '')+'>'+
-        '<td><b>'+datumDe(t.datum)+'</b></td><td>'+esc(nrText(t.nr))+'</td><td>'+esc(t.titel||'')+'</td></tr>').join('')+
+  if(geplant.length){
+    h += '<div class="karte"><h2>Geplante Einheiten</h2>'+
+      '<div style="overflow:auto"><table class="liste"><thead><tr><th style="width:120px">Datum</th><th style="width:150px">Einheit</th>'+
+      '<th>Thema</th><th style="width:150px"></th></tr></thead><tbody>'+
+      geplant.map(t => {
+        const vorbei = t.datum < heuteStr;
+        const naechster = (!vorbei && kommend.length && t.datum === kommend[0].datum);
+        return '<tr'+(naechster ? ' style="background:var(--blau-hell)"' : '')+'>'+
+          '<td><b>'+datumDe(t.datum)+'</b></td><td>'+esc(nrText(t.nr))+'</td><td>'+esc(t.titel||'')+'</td>'+
+          '<td>'+(naechster ? '<span class="marke blau">als Nächstes</span>'
+                 : vorbei ? '<span class="marke grau">Rückmeldung folgt</span>' : '')+'</td></tr>';
+      }).join('')+
       '</tbody></table></div>'+
-      '<p class="formhinweis" style="margin-top:10px">Termine können sich kurzfristig ändern – maßgeblich ist die Information über die Schule.</p></div>';
+      '<p class="formhinweis" style="margin-top:10px">Termine können sich kurzfristig ändern – maßgeblich ist die Information über die Schule. '+
+      'Zu Einheiten, die schon stattgefunden haben, erscheint die Rückmeldung, sobald sie abgeschlossen ist.</p></div>';
   }
   if(!eh.length) return el('haupt').innerHTML = h +
     leerHinweis('Noch nichts freigegeben','Sobald die erste Einheit abgeschlossen und freigegeben ist, erscheint sie hier mit Rückmeldung und Arbeitsblatt.') + '</section>';
