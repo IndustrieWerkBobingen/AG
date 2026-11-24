@@ -1625,7 +1625,7 @@ const BLAETTER = {
 };
 
 /* ---------- Zustand ---------- */
-const LEER = () => ({ benutzer:{}, gruppen:{}, schueler:{}, einheiten:{}, anw:{}, bew:{}, antw:{}, fotos:{}, einsicht:{}, einst:{} });
+const LEER = () => ({ benutzer:{}, gruppen:{}, schueler:{}, einheiten:{}, anw:{}, bew:{}, antw:{}, fotos:{}, blaetter:{}, einsicht:{}, einst:{} });
 let D = LEER();
 let cloudAktiv = false, db = null, fbAuth = null, angemeldet = null;
 let elternFotos = {};   // Fotos, die für die Eltern-Einsicht nachgeladen wurden
@@ -1646,6 +1646,16 @@ function datumDe(s){ if(!s) return '–'; const t = String(s).split('-'); return
 function heute(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 const ZEICHEN = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function neuerCode(n){ const z = new Uint32Array(n||8); crypto.getRandomValues(z); return Array.from(z, x => ZEICHEN[x % ZEICHEN.length]).join(''); }
+
+/* Arbeitsblatt einer Einheit: selbst bearbeitete Fassung, sonst die eingebaute */
+function blatt(nr){
+  const eigen = D.blaetter[nr];
+  if(eigen && eigen.felder && eigen.felder.length) return eigen;
+  return BLAETTER[nr] || null;
+}
+const blattGeaendert = nr => !!(D.blaetter[nr] && D.blaetter[nr].felder);
+const FELDTYPEN = [['text','Mehrzeiliges Textfeld'],['kurz','Einzeiliges Textfeld'],['zahl','Zahl'],
+  ['wahl','Eine Antwort auswählen'],['check','Mehrere ankreuzen'],['tab','Tabelle'],['foto','Foto']];
 
 /* Bild eines Fotoeintrags holen – aus den geladenen Daten oder aus der Einsicht */
 function fotoUrl(x){
@@ -2062,15 +2072,24 @@ function ansBlaetter(g){
   h += '</tbody></table></div><p class="formhinweis" style="margin-top:10px">Spalte anklicken, um das Blatt zu öffnen. ✓ abgegeben · · begonnen · – nichts eingetragen</p></div>';
   h += '<div class="karte"><h2>Vorschau: so sehen die Blätter für die Schüler aus</h2>'+
     '<p class="sub">Leere Ansicht zum Prüfen – hier wird nichts gespeichert.</p><div class="werkzeuge">'+
-    EINHEIT_VORLAGE.filter(([nr]) => BLAETTER[nr]).map(([nr,t]) =>
-      '<button class="btn sek klein" onclick="blattVorschau(\''+nr+'\')">'+esc(nrText(nr))+'</button>').join('')+
-    '</div></div></section>';
+    EINHEIT_VORLAGE.filter(([nr]) => blatt(nr)).map(([nr,t]) =>
+      '<button class="btn sek klein" onclick="blattVorschau(\''+nr+'\')">'+esc(nrText(nr))+
+      (blattGeaendert(nr) ? ' <span class="marke blau" style="margin-left:4px">angepasst</span>' : '')+'</button>').join('')+
+    '</div></div>';
+  if(schreibDarf()){
+    h += '<div class="karte"><h2>Blätter bearbeiten</h2>'+
+      '<p class="sub">Fragen umformulieren, ergänzen oder streichen – ohne dass die Datei angefasst werden muss.</p><div class="werkzeuge">'+
+      EINHEIT_VORLAGE.filter(([nr]) => blatt(nr)).map(([nr,t]) =>
+        '<button class="btn sek klein" onclick="blattBearbeiten(\''+nr+'\')">'+esc(nrText(nr))+'</button>').join('')+
+      '</div></div>';
+  }
+  h += '</section>';
   return h;
 }
 
 /* Leere Vorschau eines Arbeitsblatts – zum Prüfen und Überarbeiten */
 function blattVorschau(nr){
-  const bl = BLAETTER[nr]; if(!bl) return;
+  const bl = blatt(nr); if(!bl) return;
   let h = '<div class="hinweis">So bekommt der Schüler das Blatt am Tablet zu sehen. Eingaben werden hier nicht gespeichert.</div>';
   bl.felder.forEach(fd => {
     h += '<h3>'+esc(fd.text)+'</h3>' + (fd.hinweis ? '<p class="formhinweis">'+esc(fd.hinweis)+'</p>' : '');
@@ -2098,7 +2117,7 @@ function blattVorschau(nr){
 }
 function blattAnsehen(eid, sid){
   const e = D.einheiten[eid], s = D.schueler[sid]; if(!e || !s) return;
-  const bl = BLAETTER[e.nr];
+  const bl = blatt(e.nr);
   if(!bl) return fenster('Arbeitsblatt', '<div class="hinweis">Für diese Einheit ist kein Arbeitsblatt hinterlegt.</div>',
     '<button class="btn sek" onclick="einheitOeffnen(\''+eid+'\')">Zurück</button>');
   const t = D.antw[eid+'_'+sid] || { f:{}, fotos:[] };
@@ -2131,6 +2150,121 @@ function blattLesen(bl, t){
     }
   });
   return h;
+}
+
+
+/* =====================================================================
+   Arbeitsblätter bearbeiten
+   ===================================================================== */
+function blattBearbeiten(nr){
+  const bl = blatt(nr); if(!bl) return;
+  window._bedit = { nr, titel: bl.titel, felder: JSON.parse(JSON.stringify(bl.felder)) };
+  blattEditorZeichnen();
+}
+function blattEditorZeichnen(){
+  const b = window._bedit;
+  let h = '<div class="feldreihe"><div class="voll"><label>Überschrift des Blattes</label>'+
+    '<input id="beTitel" value="'+esc(b.titel)+'" oninput="window._bedit.titel=this.value"></div></div>';
+  h += '<h3>Fragen und Felder</h3>';
+  if(!b.felder.length) h += '<p class="sub">Noch keine Felder.</p>';
+  h += '<div style="overflow:auto"><table class="liste"><thead><tr><th style="width:40px"></th><th>Beschriftung</th>'+
+    '<th style="width:170px">Art</th><th style="width:190px"></th></tr></thead><tbody>';
+  b.felder.forEach((f, i) => {
+    const art = (FELDTYPEN.find(t => t[0] === f.typ) || ['', f.typ])[1];
+    h += '<tr><td class="mitte" style="color:var(--text-hell)">'+(i+1)+'</td>'+
+      '<td><b>'+esc(f.text)+'</b>'+(f.hinweis ? '<br><span class="sub">'+esc(f.hinweis)+'</span>' : '')+'</td>'+
+      '<td>'+esc(art)+(f.typ === 'tab' ? ' <span class="sub">('+f.zeilen.length+'×'+f.spalten.length+')</span>' : '')+'</td>'+
+      '<td style="text-align:right">'+
+        '<button class="btn sek klein" onclick="feldSchieben('+i+',-1)" '+(i === 0 ? 'disabled' : '')+'>↑</button> '+
+        '<button class="btn sek klein" onclick="feldSchieben('+i+',1)" '+(i === b.felder.length-1 ? 'disabled' : '')+'>↓</button> '+
+        '<button class="btn sek klein" onclick="feldBearbeiten('+i+')">Ändern</button> '+
+        '<button class="btn sek klein" onclick="feldWeg('+i+')">Löschen</button></td></tr>';
+  });
+  h += '</tbody></table></div>';
+  h += '<div class="werkzeuge" style="margin-top:14px"><button class="btn sek" onclick="feldBearbeiten(-1)">Feld hinzufügen</button>'+
+       '<button class="btn sek" onclick="blattVorschauEntwurf()">Vorschau</button></div>';
+  h += '<div class="hinweis gelb">Die Antworten der Schüler hängen an der Kennung eines Feldes. '+
+       'Beschriftung und Hinweis kannst du jederzeit ändern, ohne dass etwas verloren geht. '+
+       'Löschst du ein Feld oder änderst seine Art, werden bereits gegebene Antworten dazu nicht mehr angezeigt.</div>';
+  fenster('Arbeitsblatt bearbeiten: ' + nrText(window._bedit.nr), h,
+    '<button class="btn sek" onclick="blattZuruecksetzen()">Auf Standard zurücksetzen</button>'+
+    '<button class="btn sek" onclick="schliesse()">Abbrechen</button>'+
+    '<button class="btn" onclick="blattSichern()">Speichern</button>', 900);
+}
+function feldSchieben(i, r){
+  const f = window._bedit.felder; const z = i + r;
+  if(z < 0 || z >= f.length) return;
+  const t = f[i]; f[i] = f[z]; f[z] = t; blattEditorZeichnen();
+}
+function feldWeg(i){
+  if(!confirm('Feld „'+window._bedit.felder[i].text+'“ löschen?')) return;
+  window._bedit.felder.splice(i, 1); blattEditorZeichnen();
+}
+function feldBearbeiten(i){
+  const neu = i < 0;
+  const f = neu ? { id:'f'+uid().slice(-5), typ:'text', text:'', hinweis:'' } : window._bedit.felder[i];
+  const zeile = a => (a || []).join('\n');
+  let h = '<div class="feldreihe">'+
+    '<div class="voll"><label>Beschriftung – die Frage für die Schüler</label><input id="fText" value="'+esc(f.text)+'"></div>'+
+    '<div class="voll"><label>Hinweis darunter (freiwillig)</label><input id="fHin" value="'+esc(f.hinweis||'')+'"></div>'+
+    '<div class="voll"><label>Art des Feldes</label><select id="fTyp" onchange="feldTypWechsel(this.value)">'+
+      FELDTYPEN.map(([w,t]) => '<option value="'+w+'"'+(f.typ===w?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select></div></div>'+
+    '<div id="fExtra"></div>';
+  window._fedit = { index:i, feld:JSON.parse(JSON.stringify(f)) };
+  fenster(neu ? 'Feld hinzufügen' : 'Feld ändern', h,
+    '<button class="btn sek" onclick="blattEditorZeichnen()">Zurück</button>'+
+    '<button class="btn" onclick="feldSichern()">Übernehmen</button>', 640);
+  feldTypWechsel(f.typ);
+}
+function feldTypWechsel(typ){
+  const f = window._fedit.feld; f.typ = typ;
+  const box = el('fExtra'); if(!box) return;
+  const zeile = a => esc((a || []).join('\n'));
+  if(typ === 'wahl' || typ === 'check'){
+    box.innerHTML = '<label>Auswahlmöglichkeiten – eine je Zeile</label>'+
+      '<textarea id="fOpt" style="min-height:120px">'+zeile(f.opt)+'</textarea>';
+  } else if(typ === 'tab'){
+    box.innerHTML = '<div class="feldreihe"><div><label>Zeilen – eine je Zeile</label>'+
+      '<textarea id="fZeilen" style="min-height:140px">'+zeile(f.zeilen)+'</textarea></div>'+
+      '<div><label>Spalten – eine je Zeile</label>'+
+      '<textarea id="fSpalten" style="min-height:140px">'+zeile(f.spalten)+'</textarea></div></div>';
+  } else box.innerHTML = '';
+}
+function feldSichern(){
+  const w = window._fedit, f = w.feld;
+  f.text = el('fText').value.trim();
+  f.hinweis = el('fHin').value.trim();
+  f.typ = el('fTyp').value;
+  if(!f.text) return toast('Bitte eine Beschriftung eintragen');
+  const liste = id => (el(id) ? el(id).value.split('\n').map(x => x.trim()).filter(Boolean) : []);
+  if(f.typ === 'wahl' || f.typ === 'check'){
+    f.opt = liste('fOpt'); delete f.zeilen; delete f.spalten;
+    if(f.opt.length < 2) return toast('Bitte mindestens zwei Möglichkeiten eintragen');
+  } else if(f.typ === 'tab'){
+    f.zeilen = liste('fZeilen'); f.spalten = liste('fSpalten'); delete f.opt;
+    if(!f.zeilen.length || !f.spalten.length) return toast('Bitte Zeilen und Spalten eintragen');
+  } else { delete f.opt; delete f.zeilen; delete f.spalten; }
+  if(w.index < 0) window._bedit.felder.push(f); else window._bedit.felder[w.index] = f;
+  blattEditorZeichnen();
+}
+function blattVorschauEntwurf(){
+  const b = window._bedit;
+  const alt = D.blaetter[b.nr];
+  D.blaetter[b.nr] = { nr:b.nr, titel:b.titel, felder:b.felder };   // nur zur Anzeige
+  blattVorschau(b.nr);
+  if(alt) D.blaetter[b.nr] = alt; else delete D.blaetter[b.nr];
+}
+function blattSichern(){
+  const b = window._bedit;
+  if(!b.felder.length) return toast('Das Blatt braucht mindestens ein Feld');
+  schreibe([['set','blaetter', b.nr, { nr:b.nr, titel:b.titel.trim() || nrText(b.nr), felder:b.felder,
+    geaendert:new Date().toISOString() }]]).then(() => { schliesse(); toast('Arbeitsblatt gespeichert'); });
+}
+function blattZuruecksetzen(){
+  const b = window._bedit;
+  if(!BLAETTER[b.nr]) return toast('Für diese Einheit gibt es kein eingebautes Blatt');
+  if(!confirm('Alle Änderungen an diesem Blatt verwerfen und die eingebaute Fassung wiederherstellen?')) return;
+  schreibe([['del','blaetter', b.nr]]).then(() => { schliesse(); toast('Zurückgesetzt'); });
 }
 
 /* ---------- Jahresmatrix ---------- */
@@ -2314,6 +2448,12 @@ function ansEinstellungen(){
     '<div><label>Passwort (nur bei neuem Konto)</label><input id="bnPass" type="text" placeholder="mindestens 6 Zeichen"></div></div>'+
     '<button class="btn" onclick="benutzerAnlegen()">Anlegen</button><div id="bnStatus"></div></div>';
 
+  h += '<div class="karte"><h2>Verbindung und Rechte prüfen</h2>'+
+    '<p class="sub">Testet für jede Sammlung, ob Lesen und Schreiben erlaubt ist. '+
+    'Bei der Meldung „Missing or insufficient permissions“ zeigt dieser Test, an welcher Stelle es klemmt.</p>'+
+    '<div class="werkzeuge"><button class="btn" onclick="rechtePruefen()">Jetzt prüfen</button></div>'+
+    '<div id="pruefErgebnis"></div></div>';
+
   h += '<div class="karte"><h2>Einrichtung mit Firebase</h2><ol style="font-size:14px;line-height:1.8">'+
     '<li>In der <a href="https://console.firebase.google.com" target="_blank" rel="noopener">Firebase-Konsole</a> ein Projekt anlegen, zum Beispiel <code>iwb-technik-ag</code>.</li>'+
     '<li><b>Authentication</b> → Anmeldeart <b>E-Mail/Passwort</b> aktivieren und unter „Users“ dein eigenes Konto anlegen.</li>'+
@@ -2373,6 +2513,49 @@ function sicherungLaden(inp){
   r.readAsText(f); inp.value = '';
 }
 
+/* ---------- Selbsttest für Rechte und Regeln ---------- */
+function rechtePruefen(){
+  const box = el('pruefErgebnis');
+  if(!cloudAktiv) return box.innerHTML = '<div class="hinweis gelb">Lokaler Testmodus – es gibt keine Firebase-Regeln zu prüfen.</div>';
+  box.innerHTML = '<p class="sub">Prüfung läuft …</p>';
+  const mein = D.benutzer[meineMail];
+  const zeilen = [];
+  zeilen.push(['Anmeldung', meineMail ? 'ok' : 'fehlt', meineMail || '–']);
+  zeilen.push(['Eintrag in „benutzer“', mein ? 'ok' : 'fehlt',
+    mein ? 'Dokument-ID: ' + meineMail : 'Kein Dokument mit der ID „' + meineMail + '“ – Groß- und Kleinschreibung beachten']);
+  zeilen.push(['Feld „rolle“', (mein && mein.rolle === 'dozent') ? 'ok' : 'prüfen',
+    mein ? 'steht auf „' + mein.rolle + '“' + (mein.rolle === 'dozent' ? '' : ' – für volle Rechte muss hier genau dozent stehen') : '–']);
+
+  const sammlungen = ['gruppen','schueler','einheiten','anw','bew','antw','fotos','blaetter','einst','einsicht'];
+  const schritte = sammlungen.map(c => {
+    const ref = db.collection(c).doc('_pruefung');
+    return ref.set({ pruefung:true, zeit:new Date().toISOString() })
+      .then(() => ref.delete().catch(() => {}))
+      .then(() => ['Schreiben in „' + c + '“', 'ok', ''])
+      .catch(e => ['Schreiben in „' + c + '“', 'fehlt', kurzFehler(e)]);
+  });
+  Promise.all(schritte).then(erg => {
+    const alle = zeilen.concat(erg);
+    const problem = alle.filter(z => z[1] !== 'ok');
+    let h = '<div style="overflow:auto"><table class="liste"><thead><tr><th>Prüfung</th><th style="width:90px">Ergebnis</th><th>Hinweis</th></tr></thead><tbody>'+
+      alle.map(z => '<tr><td>'+esc(z[0])+'</td><td><span class="marke '+(z[1]==='ok'?'gruen':'rot')+'">'+esc(z[1])+'</span></td><td>'+esc(z[2])+'</td></tr>').join('')+
+      '</tbody></table></div>';
+    if(!problem.length) h += '<div class="hinweis gruen" style="margin-top:12px">Alles in Ordnung – Lesen und Schreiben funktionieren.</div>';
+    else if(problem.some(z => z[0].indexOf('Schreiben') === 0))
+      h += '<div class="hinweis rot" style="margin-top:12px"><b>Die Regeln in Firebase passen noch nicht zur App.</b> '+
+           'Am häufigsten fehlt der Abschnitt für eine Sammlung, meist <code>fotos</code>. Kopiere die Regeln unten vollständig '+
+           'in die Firebase-Konsole unter Firestore Database → Regeln und klicke auf <b>Veröffentlichen</b>. '+
+           'Danach diese Seite neu laden und noch einmal prüfen.</div>';
+    box.innerHTML = h;
+  });
+}
+function kurzFehler(e){
+  const c = (e && e.code) || '';
+  if(c.indexOf('permission-denied') > -1) return 'Die Regel erlaubt das Schreiben nicht.';
+  if(c.indexOf('unavailable') > -1) return 'Keine Verbindung zum Server.';
+  return c || (e && e.message) || 'unbekannter Fehler';
+}
+
 const REGELN_FS = `rules_version = '2';
 service cloud.firestore {
   match /databases/{datenbank}/documents {
@@ -2397,6 +2580,8 @@ service cloud.firestore {
     match /einst/{d}     { allow read: if drin(); allow write: if dozent(); }
     // Arbeitsblaetter: auch das Gruppen-Tablet darf schreiben
     match /antw/{d}      { allow read: if drin(); allow write: if dozent() || tablet(); }
+    // Arbeitsblaetter: auch ohne Anmeldung lesbar, damit die Einsicht sie anzeigen kann
+    match /blaetter/{d}  { allow read: if true; allow write: if dozent(); }
     // Fotos: einzeln abrufbar, wenn man die Kennung kennt – auflisten nur intern
     match /fotos/{id}      { allow get: if true; allow list: if drin();
                              allow write: if dozent() || tablet(); }
@@ -2459,7 +2644,7 @@ function schuelerAnsicht(){
     '<button class="btn sek" onclick="standbyAn()">Fertig – abmelden</button></div>';
 
   if(aktuell){
-    const bl = BLAETTER[aktuell.nr];
+    const bl = blatt(aktuell.nr);
     h += '<div class="karte"><h2>Heute: '+esc(nrText(aktuell.nr))+' – '+esc(aktuell.titel)+'</h2>';
     h += bl ? schuelerBlattForm(aktuell, s, bl) : '<p class="sub">Für diese Einheit gibt es kein Arbeitsblatt.</p>';
     h += '</div>';
@@ -2581,10 +2766,17 @@ function elternStart(code){
   el('haupt').innerHTML = '<section><div class="karte"><p class="sub">Einsicht wird geladen …</p></div></section>';
   if(cloudAktiv){
     db.collection('einsicht').doc(code).get()
-      .then(d => { elternDaten = d.exists ? d.data() : null; return elternFotosLaden(); })
+      .then(d => { elternDaten = d.exists ? d.data() : null; return elternBlaetterLaden(); })
+      .then(() => elternFotosLaden())
       .then(() => elternSeite())
       .catch(() => { elternDaten = null; elternSeite(); });
   } else { elternDaten = D.einsicht[code] || null; elternFotos = D.fotos; elternSeite(); }
+}
+/* Angepasste Arbeitsblätter auch ohne Anmeldung laden */
+function elternBlaetterLaden(){
+  return db.collection('blaetter').get()
+    .then(s => { const o = {}; s.forEach(d => o[d.id] = d.data()); D.blaetter = o; })
+    .catch(() => {});
 }
 /* Die Fotos der freigegebenen Einheiten einzeln nachladen */
 function elternFotosLaden(){
@@ -2626,7 +2818,7 @@ function elternSeite(){
     if(e.pos)  h += '<div class="hinweis gruen"><b>Positiv aufgefallen:</b> '+esc(e.pos)+'</div>';
     if(e.next) h += '<div class="hinweis gelb"><b>Daran arbeiten wir:</b> '+esc(e.next)+'</div>';
     if(e.bem)  h += '<div class="hinweis">'+esc(e.bem)+'</div>';
-    const bl = BLAETTER[e.nr];
+    const bl = blatt(e.nr);
     if(bl && (Object.keys(e.antworten||{}).length || (e.fotos||[]).length)){
       h += '<h3>Arbeitsblatt</h3>' + blattLesen(bl, { f:e.antworten, fotos:e.fotos });
     }
@@ -2910,7 +3102,7 @@ function firebaseBereit(codeTreffer){
     });
   } catch(e){ cloudStatus('Fehler bei der Verbindung', '#B3261E'); fehler(e); }
 }
-const SAMMLUNGEN = ['benutzer','gruppen','schueler','einheiten','anw','bew','antw','fotos','einst'];
+const SAMMLUNGEN = ['benutzer','gruppen','schueler','einheiten','anw','bew','antw','fotos','blaetter','einst'];
 function datenLauschen(){
   let offen = SAMMLUNGEN.length;
   SAMMLUNGEN.forEach(c => {
