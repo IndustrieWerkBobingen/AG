@@ -1841,7 +1841,7 @@ function ansUebersicht(g){
   h += '<div class="karte"><h2>Nächste Einheit</h2>';
   if(naechste){
     h += '<p style="font-size:17px;margin:0 0 4px"><b>'+esc(nrText(naechste.nr))+' – '+esc(naechste.titel)+'</b></p>'+
-         '<p class="sub">'+datumDe(naechste.datum)+' · '+statusMarke(naechste.status)+'</p>'+
+         '<p class="sub">'+datumDe(naechste.datum)+' · '+statusMarke(naechste)+'</p>'+
          (schreibDarf() ? '<button class="btn" onclick="einheitOeffnen(\''+naechste.id+'\')">Einheit öffnen</button>' : '');
   } else h += '<p class="sub">Keine offene Einheit. Unter <b>Einheiten</b> kannst du den Jahresplan anlegen.</p>';
   h += '</div>';
@@ -1868,8 +1868,14 @@ function ansUebersicht(g){
 }
 const kz = (w,t,k) => '<div class="kz'+(k?' '+k:'')+'"><b>'+esc(w)+'</b><span>'+esc(t)+'</span></div>';
 const nrText = nr => ({FB:'Freies Bauen', WB:'Wettbewerb', AB:'Abschluss'}[nr] || ('Lektion '+nr));
-const statusMarke = st => ({geplant:'<span class="marke grau">geplant</span>', offen:'<span class="marke gelb">in Erfassung</span>',
-  frei:'<span class="marke gruen">freigegeben</span>'}[st] || '');
+/* Eine Einheit gilt erst als geplant, wenn ein Datum eingetragen ist. */
+function statusMarke(e){
+  const st = (typeof e === 'string') ? e : (e || {}).status;
+  const ohneDatum = (typeof e === 'object') && e && !e.datum;
+  if(st === 'geplant' && ohneDatum) return '<span class="marke rot">ohne Termin</span>';
+  return ({ geplant:'<span class="marke grau">geplant</span>', offen:'<span class="marke gelb">in Erfassung</span>',
+    frei:'<span class="marke gruen">freigegeben</span>' }[st] || '');
+}
 function leerHinweis(t, txt){ return '<section><div class="karte"><div class="leerzustand"><b>'+esc(t)+'</b><p>'+txt+'</p></div></div></section>'; }
 </script>
 
@@ -1891,7 +1897,7 @@ function ansEinheiten(g){
     h += '<tr><td><b>'+esc(nrText(e.nr))+'</b></td><td>'+esc(e.titel)+'</td><td>'+datumDe(e.datum)+'</td>'+
       '<td class="mitte">'+(e.status==='geplant'?'–':da+' / '+sch.length)+'</td>'+
       '<td class="mitte">'+(e.status==='geplant'?'–':bw+' / '+sch.length)+'</td>'+
-      '<td class="mitte">'+statusMarke(e.status)+'</td><td style="text-align:right">'+
+      '<td class="mitte">'+statusMarke(e)+'</td><td style="text-align:right">'+
       '<button class="btn sek klein" onclick="einheitOeffnen(\''+e.id+'\')">'+(schreibDarf()?'Erfassen':'Ansehen')+'</button> '+
       (schreibDarf() ? (e.status === 'frei'
         ? '<button class="btn sek klein" onclick="statusSetzen(\''+e.id+'\',\'offen\');schliesse()">Freigabe zurück</button>'
@@ -1933,9 +1939,12 @@ function freigabe(eid, an){
 function einheitOeffnen(eid){
   const e = D.einheiten[eid]; if(!e) return;
   const sch = schuelerDer(e.gid);
-  let h = '<div class="werkzeuge"><span class="marke blau">'+esc(nrText(e.nr))+'</span>'+statusMarke(e.status)+
+  let h = '<div class="werkzeuge"><span class="marke blau">'+esc(nrText(e.nr))+'</span>'+statusMarke(e)+
     '<span style="margin-left:auto"></span>'+
     (schreibDarf() ? '<label style="display:flex;align-items:center;gap:6px;margin:0;text-transform:none;letter-spacing:0">Datum <input type="date" id="ehDatum" value="'+esc(e.datum||'')+'" onchange="einheitDatum(\''+eid+'\',this.value)" style="width:auto"></label>' : '')+'</div>';
+  if(!e.datum) h += '<div class="hinweis rot"><b>Noch kein Termin eingetragen.</b> '+
+    'Erst mit einem Datum gilt die Einheit als geplant und erscheint bei Schülern und Eltern in der Terminliste. '+
+    'Das Datum trägst du oben rechts ein.</div>';
   if(!sch.length) h += '<div class="hinweis rot">In dieser Gruppe sind noch keine Schüler eingetragen.</div>';
   h += '<div style="overflow:auto"><table class="liste"><thead><tr><th>Schüler</th><th style="width:230px">Anwesenheit</th><th class="mitte" style="width:120px">Arbeitsblatt</th><th class="mitte" style="width:110px">Bewertung</th><th style="width:150px"></th></tr></thead><tbody>';
   sch.forEach(s => {
@@ -1968,6 +1977,11 @@ function einheitOeffnen(eid){
 }
 function statusSetzen(eid, st){
   const e = D.einheiten[eid]; if(!e || e.status === st) return;
+  if(st === 'geplant' && !e.datum){
+    toast('Bitte zuerst ein Datum eintragen – ohne Termin ist die Einheit nicht geplant');
+    const f = el('ehDatum'); if(f) f.focus();
+    return;
+  }
   if(st === 'frei' && !confirm('Einheit freigeben?\n\nSchüler und Eltern sehen danach Anwesenheit, Bewertung, Rückmeldung und Arbeitsblatt dieser Einheit.')) return;
   if(e.status === 'frei' && st !== 'frei' && !confirm('Freigabe zurücknehmen?\n\nDie Einheit verschwindet bei Schülern und Eltern wieder aus der Rückmeldung und steht nur noch als Termin in der Liste.')) return;
   schreibe([['set','einheiten', eid, Object.assign({}, e, { status: st })]]).then(() => {
@@ -1976,7 +1990,13 @@ function statusSetzen(eid, st){
     einheitOeffnen(eid);
   });
 }
-function einheitDatum(eid, d){ const e = D.einheiten[eid]; schreibe([['set','einheiten',eid,Object.assign({},e,{datum:d})]]); }
+function einheitDatum(eid, d){
+  const e = D.einheiten[eid];
+  schreibe([['set','einheiten',eid,Object.assign({},e,{datum:d})]]).then(() => {
+    if(d) toast('Termin eingetragen – die Einheit steht jetzt in der Elternansicht');
+    einheitOeffnen(eid);
+  });
+}
 function anwSetzen(eid, sid, st){
   const k = eid+'_'+sid; const alt = D.anw[k] || {};
   const neu = alt.status === st ? '' : st;
