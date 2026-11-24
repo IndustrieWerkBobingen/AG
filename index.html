@@ -157,6 +157,18 @@ textarea{min-height:76px;resize:vertical}
 .fotos figcaption{font-size:11px;color:var(--text-hell);margin-top:3px;text-align:center}
 .leerzustand{text-align:center;padding:40px 20px;color:var(--text-hell)}
 .leerzustand b{display:block;font-size:16px;color:var(--text);margin-bottom:6px}
+.kalender td{vertical-align:top}
+.kalender tbody tr.ferienzeile td{background:#F7F8FA;color:var(--text-hell)}
+.kalender tbody tr.ferienzeile:hover td{background:#F7F8FA}
+.kalbtn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  min-width:78px;padding:5px 8px;border-radius:var(--radius-klein);border:1px solid transparent;
+  font:inherit;cursor:pointer;transition:transform var(--weich),box-shadow var(--weich)}
+.kalbtn:hover{transform:translateY(-1px);box-shadow:var(--schatten)}
+.kalbtn b{font-size:14px;line-height:1.1}
+.kalbtn span{font-size:10.5px;opacity:.85}
+.kal-geplant{background:#EEF1F4;color:var(--text);border-color:var(--grau-linie)}
+.kal-offen{background:#FDF6E3;color:#7A5200;border-color:#EAD9A8}
+.kal-frei{background:#EDF5E5;color:#3C6B1E;border-color:#C9E0B4}
 .gruppenwahl{display:flex;align-items:center;gap:8px}
 .gruppenwahl select{width:auto;min-width:190px}
 .druckbar{display:none}
@@ -1758,6 +1770,7 @@ function einsichtErgaenzen(ops){
    ===================================================================== */
 const ANSICHTEN = {
   uebersicht:  { titel:'Übersicht',     rollen:['dozent','lehrkraft'] },
+  kalender:    { titel:'Kalender',      rollen:['dozent','lehrkraft'] },
   einheiten:   { titel:'Einheiten',     rollen:['dozent','lehrkraft'] },
   bewertung:   { titel:'Bewertung',     rollen:['dozent','lehrkraft'] },
   blaetter:    { titel:'Arbeitsblätter',rollen:['dozent','lehrkraft'] },
@@ -1822,7 +1835,7 @@ function alles(){
     el('navi').innerHTML = ''; return;
   }
   if(!darf(aktAns)) aktAns = Object.keys(ANSICHTEN).filter(darf)[0] || 'uebersicht';
-  const f = { uebersicht:ansUebersicht, einheiten:ansEinheiten, bewertung:ansBewertung,
+  const f = { uebersicht:ansUebersicht, kalender:ansKalender, einheiten:ansEinheiten, bewertung:ansBewertung,
               blaetter:ansBlaetter, matrix:ansMatrix, gruppen:ansGruppen, einstellungen:ansEinstellungen }[aktAns];
   el('haupt').innerHTML = f ? f(g) : '';
   if(typeof einsichtAutoAuffrischen === 'function') setTimeout(einsichtAutoAuffrischen, 800);
@@ -1830,7 +1843,11 @@ function alles(){
 
 /* ---------- Übersicht ---------- */
 function ansUebersicht(g){
-  if(!g) return leerHinweis('Noch keine Gruppe angelegt', 'Lege unter <b>Gruppen</b> deine erste Gruppe an und trage die Schüler ein. Danach erscheint hier die Übersicht.');
+  if(!g) return '<section><div class="karte"><div class="leerzustand"><b>Noch keine Gruppe angelegt</b>'+
+    '<p>Lege die vier Gruppen mit ihrem Jahresplan in einem Schritt an – Ferien und Feiertage werden übersprungen. '+
+    'Die Schüler trägst du danach unter <b>Gruppen</b> ein.</p>'+
+    (schreibDarf() ? '<button class="btn" onclick="startpaketAnlegen()">Vier Gruppen mit Jahresplan anlegen</button>' : '')+
+    '</div></div></section>';
   const sch = schuelerDer(g.id), eh = einheitenDer(g.id);
   const frei = eh.filter(e => e.status === 'frei').length;
   const naechste = eh.filter(e => e.status !== 'frei' && e.datum >= heute())[0] || eh.filter(e => e.status !== 'frei')[0];
@@ -2469,6 +2486,270 @@ function codeZettel(sid){
     '<p class="formhinweis" style="margin-top:16px">Bitte nicht weitergeben – wer den Code hat, sieht die Rückmeldungen.</p>'+
     (schreibDarf() ? '<p class="formhinweis" style="margin:0">PIN für das Tablet in der AG: <b>'+esc(s.pin)+'</b></p>' : '')+'</div>',
     '<button class="btn sek" onclick="schliesse()">Schließen</button><button class="btn" onclick="window.print()">Drucken</button>', 680);
+}
+</script>
+
+<script>
+/* =====================================================================
+   Jahreskalender, Ferien und Jahresplanung
+   ===================================================================== */
+
+/* Bayerische Ferien im Schuljahr 2026/27 – bei Bedarf hier ergänzen */
+const FERIEN = [
+  ['Herbstferien',      '2026-11-02', '2026-11-06'],
+  ['Weihnachtsferien',  '2026-12-24', '2027-01-08'],
+  ['Faschingsferien',   '2027-02-08', '2027-02-12'],
+  ['Osterferien',       '2027-03-22', '2027-04-02'],
+  ['Pfingstferien',     '2027-05-18', '2027-05-28'],
+  ['Sommerferien',      '2027-08-02', '2027-09-13']
+];
+/* Feiertage und Tage, an denen nichts stattfindet */
+const FEIERTAGE = {
+  '2026-12-23': 'Tag vor Heiligabend – schulfrei gesetzt',
+  '2027-01-06': 'Heilige Drei Könige',
+  '2027-05-01': 'Tag der Arbeit',
+  '2027-05-06': 'Christi Himmelfahrt',
+  '2027-05-17': 'Pfingstmontag',
+  '2027-05-27': 'Fronleichnam',
+  '2027-10-03': 'Tag der Deutschen Einheit',
+  '2027-11-01': 'Allerheiligen'
+};
+
+/* Ablauf der neun Termine je Gruppe */
+const JAHRESPLAN = [
+  ['1',  'Einstieg und Kennenlernen des Systems'],
+  ['2',  'Erste Programmierung – Motoren steuern'],
+  ['3',  'Sensorik – das Modell reagiert'],
+  ['4',  'Mechanik – Getriebe und Übersetzung'],
+  ['5',  'Konstruktion einer Funktionsbaugruppe'],
+  ['6',  'Automatisierter Ablauf'],
+  ['FB', 'Freies Bauen'],
+  ['WB', 'Wettbewerb'],
+  ['AB', 'Abschluss und Rückmeldung']
+];
+
+/* Die vier Gruppen, wie sie zurzeit laufen */
+const GRUPPEN_VORLAGE = [
+  { kuerzel:'MSG', name:'MSG', schule:'Mittelschule Bobingen', tag:3, paritaet:0, start:'2026-11-25', hinweis:'gerade KW, Mittwoch' },
+  { kuerzel:'MSU', name:'MSU', schule:'Mittelschule Bobingen', tag:3, paritaet:1, start:'2026-12-02', hinweis:'ungerade KW, Mittwoch' },
+  { kuerzel:'RSU', name:'RSU', schule:'Realschule Bobingen',   tag:2, paritaet:1, start:'2026-12-01', hinweis:'ungerade KW, Dienstag' },
+  { kuerzel:'RSG', name:'RSG', schule:'Realschule Bobingen',   tag:4, paritaet:0, start:'2026-12-10', hinweis:'gerade KW, Donnerstag' }
+];
+const WOCHENTAGE = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+/* ---------- Datumswerkzeug ---------- */
+const zuDatum = s => { const t = String(s).split('-'); return new Date(+t[0], +t[1]-1, +t[2]); };
+const zuText = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const plusTage = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+function isoKW(d){
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() + 3 - ((x.getDay() + 6) % 7));
+  const ersten = new Date(x.getFullYear(), 0, 4);
+  return 1 + Math.round(((x - ersten) / 86400000 - 3 + ((ersten.getDay() + 6) % 7)) / 7);
+}
+const montagVon = d => plusTage(d, -((d.getDay() + 6) % 7));
+/* Gibt den Grund zurück, warum an diesem Tag nichts stattfindet – sonst '' */
+function freierTag(datum){
+  const s = typeof datum === 'string' ? datum : zuText(datum);
+  for(const [n, a, b] of FERIEN) if(s >= a && s <= b) return n;
+  return FEIERTAGE[s] || '';
+}
+
+/* ---------- Termine für eine Gruppe berechnen ---------- */
+function termineBerechnen(start, tag, paritaet, anzahl){
+  const erg = []; const uebersprungen = [];
+  let d = zuDatum(start);
+  d = plusTage(montagVon(d), tag - 1);                 // auf den gewünschten Wochentag
+  if(zuText(d) < start) d = plusTage(d, 14);
+  let schutz = 0;
+  while(erg.length < anzahl && schutz++ < 80){
+    const kw = isoKW(d);
+    if(kw % 2 === paritaet){
+      const grund = freierTag(d);
+      if(grund) uebersprungen.push({ datum: zuText(d), kw, grund });
+      else erg.push({ datum: zuText(d), kw });
+      d = plusTage(d, 14);
+    } else d = plusTage(d, 7);
+  }
+  return { termine: erg, uebersprungen };
+}
+
+/* ---------- Vier Gruppen samt Jahresplan anlegen ---------- */
+function startpaketAnlegen(){
+  const vorhanden = Object.values(D.gruppen).filter(g => GRUPPEN_VORLAGE.some(v => v.name === g.name));
+  if(vorhanden.length && !confirm('Es gibt bereits Gruppen mit diesen Namen. Trotzdem neu anlegen?\n\nEs entstehen dann doppelte Einträge.')) return;
+  const ops = []; let anzahlTermine = 0;
+  GRUPPEN_VORLAGE.forEach(v => {
+    const gid = uid();
+    ops.push(['set','gruppen', gid, { id:gid, name:v.name, schule:v.schule, schuljahr:'2026/27', jahrgang:8,
+      tag:v.tag, paritaet:v.paritaet }]);
+    const { termine } = termineBerechnen(v.start, v.tag, v.paritaet, JAHRESPLAN.length);
+    termine.forEach((t, i) => {
+      const [nr, titel] = JAHRESPLAN[i];
+      const eid = uid();
+      ops.push(['set','einheiten', eid, { id:eid, gid, nr, titel, datum:t.datum, status:'geplant' }]);
+      anzahlTermine++;
+    });
+  });
+  schreibe(ops).then(() => { aktAns = 'kalender'; toast('4 Gruppen und ' + anzahlTermine + ' Termine angelegt'); alles(); });
+}
+
+/* ---------- Jahresplan für eine einzelne Gruppe ---------- */
+function planDialog(gid){
+  const g = D.gruppen[gid] || gruppeAktiv(); if(!g) return toast('Keine Gruppe vorhanden');
+  const gr = Object.values(D.gruppen).sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  fenster('Jahresplan erzeugen',
+    '<div class="feldreihe">'+
+    '<div><label>Gruppe</label><select id="pGruppe">'+gr.map(x =>
+      '<option value="'+x.id+'"'+(x.id===g.id?' selected':'')+'>'+esc(x.name+' · '+(x.schule||''))+'</option>').join('')+'</select></div>'+
+    '<div><label>Wochentag</label><select id="pTag">'+[1,2,3,4,5].map(n =>
+      '<option value="'+n+'"'+((g.tag||3)===n?' selected':'')+'>'+WOCHENTAGE[n]+'</option>').join('')+'</select></div>'+
+    '<div><label>Kalenderwochen</label><select id="pParitaet">'+
+      '<option value="0"'+((g.paritaet||0)===0?' selected':'')+'>gerade</option>'+
+      '<option value="1"'+((g.paritaet||0)===1?' selected':'')+'>ungerade</option></select></div>'+
+    '<div><label>Erster Termin ab</label><input type="date" id="pStart" value="'+esc(heute())+'"></div>'+
+    '<div><label>Anzahl Termine</label><input type="number" id="pAnzahl" value="9" min="1" max="20"></div>'+
+    '<div><label>Vorhandene Einheiten</label><select id="pAlt">'+
+      '<option value="behalten">behalten, neue dazu</option>'+
+      '<option value="ersetzen">alle ersetzen</option></select></div></div>'+
+    '<div id="pVorschau"></div>',
+    '<button class="btn sek" onclick="planVorschau()">Vorschau</button>'+
+    '<button class="btn sek" onclick="schliesse()">Abbrechen</button>'+
+    '<button class="btn" onclick="planSpeichern()">Termine anlegen</button>', 720);
+  planVorschau();
+}
+function planWerte(){
+  return { gid: el('pGruppe').value, tag: +el('pTag').value, paritaet: +el('pParitaet').value,
+           start: el('pStart').value, anzahl: Math.max(1, Math.min(20, +el('pAnzahl').value || 9)),
+           alt: el('pAlt').value };
+}
+function planVorschau(){
+  const w = planWerte();
+  const { termine, uebersprungen } = termineBerechnen(w.start, w.tag, w.paritaet, w.anzahl);
+  let h = '<h3>Vorschau</h3><div style="overflow:auto"><table class="liste"><thead><tr><th style="width:60px">Nr.</th>'+
+    '<th style="width:70px">KW</th><th style="width:150px">Datum</th><th>Einheit</th></tr></thead><tbody>';
+  termine.forEach((t, i) => {
+    const [nr, titel] = JAHRESPLAN[i % JAHRESPLAN.length];
+    h += '<tr><td>'+(i+1)+'</td><td>KW'+t.kw+'</td><td>'+WOCHENTAGE[zuDatum(t.datum).getDay()].slice(0,2)+' '+datumDe(t.datum)+'</td>'+
+      '<td>'+esc(nrText(nr))+' – '+esc(titel)+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  if(uebersprungen.length) h += '<div class="hinweis gelb" style="margin-top:12px"><b>Übersprungen:</b> '+
+    uebersprungen.map(u => datumDe(u.datum)+' ('+esc(u.grund)+')').join(' · ')+'</div>';
+  el('pVorschau').innerHTML = h;
+}
+function planSpeichern(){
+  const w = planWerte();
+  const g = D.gruppen[w.gid]; if(!g) return;
+  const { termine } = termineBerechnen(w.start, w.tag, w.paritaet, w.anzahl);
+  const ops = [['set','gruppen', g.id, Object.assign({}, g, { tag:w.tag, paritaet:w.paritaet })]];
+  if(w.alt === 'ersetzen'){
+    const alt = einheitenDer(g.id);
+    const mitDaten = alt.filter(e => e.status !== 'geplant');
+    if(mitDaten.length && !confirm(mitDaten.length + ' Einheit(en) sind schon in Erfassung oder freigegeben.\n\nWirklich alle Einheiten dieser Gruppe löschen und neu anlegen?')) return;
+    alt.forEach(e => {
+      ops.push(['del','einheiten', e.id]);
+      schuelerDer(g.id).forEach(s => ops.push(['del','anw', e.id+'_'+s.id], ['del','bew', e.id+'_'+s.id], ['del','antw', e.id+'_'+s.id]));
+    });
+  }
+  termine.forEach((t, i) => {
+    const [nr, titel] = JAHRESPLAN[i % JAHRESPLAN.length];
+    const eid = uid();
+    ops.push(['set','einheiten', eid, { id:eid, gid:g.id, nr, titel, datum:t.datum, status:'geplant' }]);
+  });
+  schreibe(ops).then(() => { schliesse(); aktGruppe = g.id; toast(termine.length + ' Termine angelegt'); });
+}
+
+/* =====================================================================
+   Jahreskalender
+   ===================================================================== */
+function ansKalender(){
+  const gr = Object.values(gruppenMir()).sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  let h = '<section><h1>Jahreskalender</h1><p class="sub">Alle Gruppen nebeneinander, Woche für Woche</p>';
+
+  if(!gr.length){
+    h += '<div class="karte"><div class="leerzustand"><b>Noch keine Gruppen</b>'+
+      '<p>Lege die vier Gruppen mit ihrem Jahresplan in einem Schritt an – Ferien und Feiertage werden dabei übersprungen.</p>'+
+      (schreibDarf() ? '<button class="btn" onclick="startpaketAnlegen()">Vier Gruppen mit Jahresplan anlegen</button>' : '')+
+      '</div></div></section>';
+    return h;
+  }
+  if(schreibDarf()) h += '<div class="werkzeuge"><button class="btn" onclick="planDialog()">Jahresplan erzeugen</button>'+
+    (Object.keys(D.einheiten).length ? '' : '<button class="btn sek" onclick="startpaketAnlegen()">Vier Gruppen anlegen</button>')+
+    '<span style="margin-left:auto"></span><button class="btn sek" onclick="window.print()">Drucken</button></div>';
+
+  /* Zeitraum bestimmen */
+  const alle = Object.values(D.einheiten).filter(e => gr.some(g => g.id === e.gid) && e.datum).map(e => e.datum).sort();
+  const vonStr = alle.length ? (alle[0] < heute() ? alle[0] : heute()) : heute();
+  const bisStr = alle.length ? alle[alle.length-1] : zuText(plusTage(zuDatum(heute()), 120));
+  let mo = montagVon(zuDatum(vonStr));
+  const ende = plusTage(montagVon(zuDatum(bisStr)), 7);
+
+  /* Einheiten nach Gruppe und Datum */
+  const nachTag = {};
+  Object.values(D.einheiten).forEach(e => { if(e.datum) (nachTag[e.gid + '|' + e.datum] = nachTag[e.gid + '|' + e.datum] || []).push(e); });
+
+  h += '<div class="karte" style="padding:0;overflow:auto"><table class="liste kalender"><thead><tr>'+
+    '<th style="width:150px">Woche</th>'+gr.map(g => '<th class="mitte">'+esc(g.name)+'<br><span style="font-weight:400;text-transform:none;letter-spacing:0">'+
+      esc(g.schule||'')+'</span></th>').join('')+'</tr></thead><tbody>';
+
+  let monat = '', schutz = 0;
+  while(mo < ende && schutz++ < 120){
+    const so = plusTage(mo, 6), kw = isoKW(mo);
+    const mName = mo.toLocaleDateString('de-DE', { month:'long', year:'numeric' });
+    if(mName !== monat){ monat = mName;
+      h += '<tr class="bereichzeile"><td colspan="'+(gr.length+1)+'">'+esc(monat)+'</td></tr>'; }
+
+    /* Ferienwoche? */
+    const ferienTreffer = FERIEN.find(([n,a,b]) => zuText(mo) <= b && zuText(so) >= a);
+    const ganzFerien = ferienTreffer && zuText(mo) >= ferienTreffer[1] && zuText(so) <= ferienTreffer[2];
+    if(ganzFerien){
+      h += '<tr class="ferienzeile"><td><b>KW '+kw+'</b><br><span class="sub">'+datumDe(zuText(mo)).slice(0,6)+'–'+datumDe(zuText(so))+'</span></td>'+
+        '<td colspan="'+gr.length+'" class="mitte"><b>'+esc(ferienTreffer[0])+'</b></td></tr>';
+      mo = plusTage(mo, 7); continue;
+    }
+
+    h += '<tr><td><b>KW '+kw+'</b> <span class="marke '+(kw % 2 ? 'grau' : 'blau')+'" style="font-size:9.5px">'+(kw % 2 ? 'ungerade' : 'gerade')+'</span>'+
+      '<br><span class="sub">'+datumDe(zuText(mo)).slice(0,6)+'–'+datumDe(zuText(so))+'</span></td>';
+    gr.forEach(g => {
+      let zelle = '';
+      for(let i = 0; i < 7; i++){
+        const tag = zuText(plusTage(mo, i));
+        (nachTag[g.id + '|' + tag] || []).forEach(e => {
+          const farbe = { geplant:'kal-geplant', offen:'kal-offen', frei:'kal-frei' }[e.status] || 'kal-geplant';
+          zelle += '<button class="kalbtn '+farbe+'" title="'+esc(e.titel)+'" onclick="einheitOeffnen(\''+e.id+'\')">'+
+            '<b>'+esc(String(e.nr))+'</b><span>'+WOCHENTAGE[zuDatum(tag).getDay()].slice(0,2)+' '+datumDe(tag).slice(0,6)+'</span></button>';
+        });
+      }
+      /* Feiertag in dieser Woche am Gruppentag? */
+      if(!zelle && g.tag){
+        const gTag = zuText(plusTage(mo, g.tag - 1));
+        const grund = freierTag(gTag);
+        if(grund && (isoKW(zuDatum(gTag)) % 2) === (g.paritaet || 0))
+          zelle = '<span class="sub" style="font-size:11px">'+esc(grund)+'</span>';
+      }
+      h += '<td class="mitte">'+zelle+'</td>';
+    });
+    h += '</tr>';
+    mo = plusTage(mo, 7);
+  }
+  h += '</tbody></table></div>';
+
+  h += '<div class="werkzeuge" style="margin-top:12px">'+
+    '<span class="kalbtn kal-geplant" style="pointer-events:none"><b>1</b><span>geplant</span></span>'+
+    '<span class="kalbtn kal-offen" style="pointer-events:none"><b>1</b><span>in Erfassung</span></span>'+
+    '<span class="kalbtn kal-frei" style="pointer-events:none"><b>1</b><span>freigegeben</span></span>'+
+    '<span class="sub" style="margin-left:10px">Termin anklicken, um die Einheit zu öffnen.</span></div>';
+
+  /* Ferienübersicht */
+  h += '<div class="karte" style="margin-top:16px"><h2>Ferien und freie Tage</h2>'+
+    '<div style="overflow:auto"><table class="liste"><thead><tr><th>Zeitraum</th><th>Anlass</th></tr></thead><tbody>'+
+    FERIEN.map(([n,a,b]) => '<tr><td>'+datumDe(a)+' – '+datumDe(b)+'</td><td>'+esc(n)+'</td></tr>').join('')+
+    Object.keys(FEIERTAGE).sort().map(d => '<tr><td>'+datumDe(d)+'</td><td>'+esc(FEIERTAGE[d])+'</td></tr>').join('')+
+    '</tbody></table></div><p class="formhinweis" style="margin-top:10px">Bayern, Schuljahr 2026/27. '+
+    'Bei der Planung werden diese Tage automatisch übersprungen.</p></div>';
+
+  return h + '</section>';
 }
 </script>
 
