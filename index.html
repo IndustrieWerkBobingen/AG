@@ -1859,7 +1859,7 @@ function ansUebersicht(g){
         '<td class="mitte">'+da+' / '+ehz.length+'</td><td class="mitte">'+ab+' / '+ehz.length+'</td>'+
         '<td class="mitte">'+bw+' / '+ehz.length+'</td>'+
         '<td><code style="font-size:12px">'+esc(s.code||'')+'</code> '+
-        (schreibDarf()?'<button class="btn sek klein" onclick="codeZettel(\''+s.id+'\')">Zettel</button>':'')+'</td></tr>';
+        '<button class="btn sek klein" onclick="codeZettel(\''+s.id+'\')">Zettel</button></td></tr>';
     });
     h += '</tbody></table></div>';
   }
@@ -2422,7 +2422,7 @@ function codeZettel(sid){
              '<p class="formhinweis" style="margin:4px 0 0;text-align:center">Mit der Handykamera scannen</p></div>' : '')+
     '</div>'+
     '<p class="formhinweis" style="margin-top:16px">Bitte nicht weitergeben – wer den Code hat, sieht die Rückmeldungen.</p>'+
-    '<p class="formhinweis" style="margin:0">PIN für das Tablet in der AG: <b>'+esc(s.pin)+'</b></p></div>',
+    (schreibDarf() ? '<p class="formhinweis" style="margin:0">PIN für das Tablet in der AG: <b>'+esc(s.pin)+'</b></p>' : '')+'</div>',
     '<button class="btn sek" onclick="schliesse()">Schließen</button><button class="btn" onclick="window.print()">Drucken</button>', 680);
 }
 </script>
