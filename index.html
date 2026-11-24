@@ -157,18 +157,51 @@ textarea{min-height:76px;resize:vertical}
 .fotos figcaption{font-size:11px;color:var(--text-hell);margin-top:3px;text-align:center}
 .leerzustand{text-align:center;padding:40px 20px;color:var(--text-hell)}
 .leerzustand b{display:block;font-size:16px;color:var(--text);margin-bottom:6px}
-.kalender td{vertical-align:top}
-.kalender tbody tr.ferienzeile td{background:#F7F8FA;color:var(--text-hell)}
-.kalender tbody tr.ferienzeile:hover td{background:#F7F8FA}
-.kalbtn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  min-width:78px;padding:5px 8px;border-radius:var(--radius-klein);border:1px solid transparent;
-  font:inherit;cursor:pointer;transition:transform var(--weich),box-shadow var(--weich)}
-.kalbtn:hover{transform:translateY(-1px);box-shadow:var(--schatten)}
-.kalbtn b{font-size:14px;line-height:1.1}
-.kalbtn span{font-size:10.5px;opacity:.85}
-.kal-geplant{background:#EEF1F4;color:var(--text);border-color:var(--grau-linie)}
-.kal-offen{background:#FDF6E3;color:#7A5200;border-color:#EAD9A8}
-.kal-frei{background:#EDF5E5;color:#3C6B1E;border-color:#C9E0B4}
+.umschalter{display:inline-flex;border:1px solid var(--grau-linie);border-radius:var(--radius-klein);overflow:hidden;background:#fff}
+.umschalter button{font:inherit;font-size:13px;padding:8px 15px;border:none;background:#fff;color:var(--text-hell);cursor:pointer;transition:all var(--weich)}
+.umschalter button:hover{background:var(--blau-hell);color:var(--blau)}
+.umschalter button.an{background:var(--blau);color:#fff}
+.legende{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:#fff;border:1px solid var(--grau-linie);
+  border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;box-shadow:var(--schatten);font-size:12.5px}
+.legpunkt{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.legpunkt i{width:11px;height:11px;border-radius:3px;flex-shrink:0;display:inline-block;border:1px solid rgba(0,0,0,.08)}
+.legpunkt .sub{font-size:11.5px}
+.monate{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin-bottom:18px}
+.monat{background:#fff;border:1px solid var(--grau-linie);border-radius:var(--radius);box-shadow:var(--schatten);
+  overflow:hidden;transition:box-shadow var(--weich);break-inside:avoid}
+.monat:hover{box-shadow:var(--schatten-hover)}
+.monatkopf{padding:11px 14px;font-weight:600;font-size:14.5px;color:var(--blau-dunkel);
+  border-bottom:1px solid var(--grau-linie);background:linear-gradient(180deg,#fff,#F7F9FB)}
+.monatkopf span{color:var(--text-hell);font-weight:400}
+.mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--grau-linie);padding:1px}
+.mwt{background:#fff;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text-hell);padding:5px 0;font-weight:600}
+.mtag{background:#fff;min-height:48px;padding:3px 3px 4px;position:relative;display:flex;flex-direction:column;gap:2px}
+.mtag.leer{background:#FBFCFD}
+.mtag.we{background:#FAFBFC}
+.mtag.ferien{background:repeating-linear-gradient(135deg,#F2F5F8,#F2F5F8 5px,#EAEFF4 5px,#EAEFF4 10px)}
+.mtag.feiertag{background:#FDF6E3}
+.mtag.heute{box-shadow:inset 0 0 0 2px var(--blau)}
+.mnum{font-size:10.5px;color:var(--text-hell);line-height:1;padding:1px 2px}
+.mtag.hat .mnum{color:var(--text);font-weight:700}
+.mchip{display:flex;align-items:center;gap:3px;width:100%;border:none;border-left:3px solid var(--gf);
+  border-radius:3px;padding:2px 3px;font:inherit;font-size:9.5px;line-height:1.25;cursor:pointer;
+  text-align:left;transition:transform var(--weich),filter var(--weich)}
+.mchip:hover{transform:translateX(1px);filter:brightness(.96)}
+.mchip span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mchip b{font-size:10px;margin:0 3px}
+.mchip i{display:block;width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#B6BFC9}
+.mchip.kal-offen i{background:var(--gelb)}
+.mchip.kal-frei i{background:var(--gruen)}
+.legpunkt i.punkt-geplant{background:#B6BFC9;border-radius:50%}
+.legpunkt i.punkt-offen{background:var(--gelb);border-radius:50%}
+.legpunkt i.punkt-frei{background:var(--gruen);border-radius:50%}
+.ferienliste{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.ferienliste div{background:var(--grau-bg);border-radius:var(--radius-klein);padding:9px 12px;font-size:13px}
+.ferienliste div b{display:block;color:var(--blau-dunkel)}
+.ferienliste div span{color:var(--text-hell);font-size:12.5px}
+table.liste tr.istheute td{background:var(--blau-hell)}
+@media print{ .monate{grid-template-columns:repeat(3,1fr)} .umschalter,.legende button{display:none} }
 .gruppenwahl{display:flex;align-items:center;gap:8px}
 .gruppenwahl select{width:auto;min-width:190px}
 .druckbar{display:none}
@@ -2661,95 +2694,132 @@ function planSpeichern(){
 }
 
 /* =====================================================================
-   Jahreskalender
+   Jahreskalender – Monatsraster oder Liste
    ===================================================================== */
+let kalAnsicht = 'monate';
+const GRUPPENFARBEN = ['#005098', '#8A3FA0', '#1C7C6B', '#B5651D', '#3C6B1E', '#A03030'];
+const gruppenFarbe = gid => {
+  const ids = Object.keys(D.gruppen).sort();
+  return GRUPPENFARBEN[Math.max(0, ids.indexOf(gid)) % GRUPPENFARBEN.length];
+};
+function kalModus(m){ kalAnsicht = m; alles(); }
+
 function ansKalender(){
   const gr = Object.values(gruppenMir()).sort((a,b) => (a.name||'').localeCompare(b.name||''));
-  let h = '<section><h1>Jahreskalender</h1><p class="sub">Alle Gruppen nebeneinander, Woche für Woche</p>';
+  let h = '<section><h1>Jahreskalender</h1><p class="sub">Schuljahr 2026/27 · alle Gruppen auf einen Blick</p>';
 
   if(!gr.length){
-    h += '<div class="karte"><div class="leerzustand"><b>Noch keine Gruppen</b>'+
+    return h + '<div class="karte"><div class="leerzustand"><b>Noch keine Gruppen</b>'+
       '<p>Lege die vier Gruppen mit ihrem Jahresplan in einem Schritt an – Ferien und Feiertage werden dabei übersprungen.</p>'+
       (schreibDarf() ? '<button class="btn" onclick="startpaketAnlegen()">Vier Gruppen mit Jahresplan anlegen</button>' : '')+
       '</div></div></section>';
-    return h;
   }
-  if(schreibDarf()) h += '<div class="werkzeuge"><button class="btn" onclick="planDialog()">Jahresplan erzeugen</button>'+
-    (Object.keys(D.einheiten).length ? '' : '<button class="btn sek" onclick="startpaketAnlegen()">Vier Gruppen anlegen</button>')+
+
+  /* Werkzeugleiste */
+  h += '<div class="werkzeuge">'+
+    (schreibDarf() ? '<button class="btn" onclick="planDialog()">Jahresplan erzeugen</button>' : '')+
+    '<div class="umschalter"><button class="'+(kalAnsicht==='monate'?'an':'')+'" onclick="kalModus(\'monate\')">Monate</button>'+
+    '<button class="'+(kalAnsicht==='liste'?'an':'')+'" onclick="kalModus(\'liste\')">Liste</button></div>'+
     '<span style="margin-left:auto"></span><button class="btn sek" onclick="window.print()">Drucken</button></div>';
 
-  /* Zeitraum bestimmen */
-  const alle = Object.values(D.einheiten).filter(e => gr.some(g => g.id === e.gid) && e.datum).map(e => e.datum).sort();
-  const vonStr = alle.length ? (alle[0] < heute() ? alle[0] : heute()) : heute();
-  const bisStr = alle.length ? alle[alle.length-1] : zuText(plusTage(zuDatum(heute()), 120));
-  let mo = montagVon(zuDatum(vonStr));
-  const ende = plusTage(montagVon(zuDatum(bisStr)), 7);
+  /* Gruppenlegende */
+  h += '<div class="legende">'+gr.map(g => '<span class="legpunkt"><i style="background:'+gruppenFarbe(g.id)+'"></i>'+
+    '<b>'+esc(g.name)+'</b> <span class="sub">'+esc(g.schule||'')+
+    (g.tag ? ' · '+WOCHENTAGE[g.tag].slice(0,2)+'. '+(g.paritaet ? 'ungerade' : 'gerade')+' KW' : '')+'</span></span>').join('')+
+    '<span class="legpunkt" style="margin-left:auto"><i class="punkt-geplant"></i>geplant</span>'+
+    '<span class="legpunkt"><i class="punkt-offen"></i>in Erfassung</span>'+
+    '<span class="legpunkt"><i class="punkt-frei"></i>freigegeben</span></div>';
 
-  /* Einheiten nach Gruppe und Datum */
+  /* Termine einsammeln */
   const nachTag = {};
-  Object.values(D.einheiten).forEach(e => { if(e.datum) (nachTag[e.gid + '|' + e.datum] = nachTag[e.gid + '|' + e.datum] || []).push(e); });
+  const alle = [];
+  Object.values(D.einheiten).forEach(e => {
+    if(!e.datum || !gr.some(g => g.id === e.gid)) return;
+    (nachTag[e.datum] = nachTag[e.datum] || []).push(e);
+    alle.push(e);
+  });
+  if(!alle.length) return h + leerHinweis('Noch keine Termine',
+    'Lege über <b>Jahresplan erzeugen</b> die Termine einer Gruppe an.') + '</section>';
+  alle.sort((a,b) => a.datum.localeCompare(b.datum));
 
-  h += '<div class="karte" style="padding:0;overflow:auto"><table class="liste kalender"><thead><tr>'+
-    '<th style="width:150px">Woche</th>'+gr.map(g => '<th class="mitte">'+esc(g.name)+'<br><span style="font-weight:400;text-transform:none;letter-spacing:0">'+
-      esc(g.schule||'')+'</span></th>').join('')+'</tr></thead><tbody>';
-
-  let monat = '', schutz = 0;
-  while(mo < ende && schutz++ < 120){
-    const so = plusTage(mo, 6), kw = isoKW(mo);
-    const mName = mo.toLocaleDateString('de-DE', { month:'long', year:'numeric' });
-    if(mName !== monat){ monat = mName;
-      h += '<tr class="bereichzeile"><td colspan="'+(gr.length+1)+'">'+esc(monat)+'</td></tr>'; }
-
-    /* Ferienwoche? */
-    const ferienTreffer = FERIEN.find(([n,a,b]) => zuText(mo) <= b && zuText(so) >= a);
-    const ganzFerien = ferienTreffer && zuText(mo) >= ferienTreffer[1] && zuText(so) <= ferienTreffer[2];
-    if(ganzFerien){
-      h += '<tr class="ferienzeile"><td><b>KW '+kw+'</b><br><span class="sub">'+datumDe(zuText(mo)).slice(0,6)+'–'+datumDe(zuText(so))+'</span></td>'+
-        '<td colspan="'+gr.length+'" class="mitte"><b>'+esc(ferienTreffer[0])+'</b></td></tr>';
-      mo = plusTage(mo, 7); continue;
-    }
-
-    h += '<tr><td><b>KW '+kw+'</b> <span class="marke '+(kw % 2 ? 'grau' : 'blau')+'" style="font-size:9.5px">'+(kw % 2 ? 'ungerade' : 'gerade')+'</span>'+
-      '<br><span class="sub">'+datumDe(zuText(mo)).slice(0,6)+'–'+datumDe(zuText(so))+'</span></td>';
-    gr.forEach(g => {
-      let zelle = '';
-      for(let i = 0; i < 7; i++){
-        const tag = zuText(plusTage(mo, i));
-        (nachTag[g.id + '|' + tag] || []).forEach(e => {
-          const farbe = { geplant:'kal-geplant', offen:'kal-offen', frei:'kal-frei' }[e.status] || 'kal-geplant';
-          zelle += '<button class="kalbtn '+farbe+'" title="'+esc(e.titel)+'" onclick="einheitOeffnen(\''+e.id+'\')">'+
-            '<b>'+esc(String(e.nr))+'</b><span>'+WOCHENTAGE[zuDatum(tag).getDay()].slice(0,2)+' '+datumDe(tag).slice(0,6)+'</span></button>';
-        });
-      }
-      /* Feiertag in dieser Woche am Gruppentag? */
-      if(!zelle && g.tag){
-        const gTag = zuText(plusTage(mo, g.tag - 1));
-        const grund = freierTag(gTag);
-        if(grund && (isoKW(zuDatum(gTag)) % 2) === (g.paritaet || 0))
-          zelle = '<span class="sub" style="font-size:11px">'+esc(grund)+'</span>';
-      }
-      h += '<td class="mitte">'+zelle+'</td>';
-    });
-    h += '</tr>';
-    mo = plusTage(mo, 7);
-  }
-  h += '</tbody></table></div>';
-
-  h += '<div class="werkzeuge" style="margin-top:12px">'+
-    '<span class="kalbtn kal-geplant" style="pointer-events:none"><b>1</b><span>geplant</span></span>'+
-    '<span class="kalbtn kal-offen" style="pointer-events:none"><b>1</b><span>in Erfassung</span></span>'+
-    '<span class="kalbtn kal-frei" style="pointer-events:none"><b>1</b><span>freigegeben</span></span>'+
-    '<span class="sub" style="margin-left:10px">Termin anklicken, um die Einheit zu öffnen.</span></div>';
+  h += (kalAnsicht === 'liste') ? kalenderListe(alle) : kalenderMonate(alle, nachTag);
 
   /* Ferienübersicht */
-  h += '<div class="karte" style="margin-top:16px"><h2>Ferien und freie Tage</h2>'+
-    '<div style="overflow:auto"><table class="liste"><thead><tr><th>Zeitraum</th><th>Anlass</th></tr></thead><tbody>'+
-    FERIEN.map(([n,a,b]) => '<tr><td>'+datumDe(a)+' – '+datumDe(b)+'</td><td>'+esc(n)+'</td></tr>').join('')+
-    Object.keys(FEIERTAGE).sort().map(d => '<tr><td>'+datumDe(d)+'</td><td>'+esc(FEIERTAGE[d])+'</td></tr>').join('')+
-    '</tbody></table></div><p class="formhinweis" style="margin-top:10px">Bayern, Schuljahr 2026/27. '+
-    'Bei der Planung werden diese Tage automatisch übersprungen.</p></div>';
+  h += '<div class="karte"><h2>Ferien und freie Tage in Bayern</h2>'+
+    '<div class="ferienliste">'+
+    FERIEN.map(([n,a,b]) => '<div><b>'+esc(n)+'</b><span>'+datumDe(a)+' – '+datumDe(b)+'</span></div>').join('')+
+    Object.keys(FEIERTAGE).sort().map(d => '<div><b>'+esc(FEIERTAGE[d])+'</b><span>'+datumDe(d)+'</span></div>').join('')+
+    '</div><p class="formhinweis" style="margin-top:12px">Bei der Planung werden diese Tage automatisch übersprungen.</p></div>';
 
   return h + '</section>';
+}
+
+/* ---------- Monatsraster ---------- */
+function kalenderMonate(alle, nachTag){
+  const ersterTag = zuDatum(alle[0].datum), letzterTag = zuDatum(alle[alle.length-1].datum);
+  let m = new Date(ersterTag.getFullYear(), ersterTag.getMonth(), 1);
+  const ende = new Date(letzterTag.getFullYear(), letzterTag.getMonth(), 1);
+  const heuteStr = heute();
+  let h = '<div class="monate">';
+  let schutz = 0;
+  while(m <= ende && schutz++ < 24){
+    const jahr = m.getFullYear(), monat = m.getMonth();
+    h += '<div class="monat"><div class="monatkopf">'+
+      esc(m.toLocaleDateString('de-DE', { month:'long' }))+' <span>'+jahr+'</span></div>'+
+      '<div class="mgrid">'+['Mo','Di','Mi','Do','Fr','Sa','So'].map(t => '<div class="mwt">'+t+'</div>').join('');
+    const ersten = new Date(jahr, monat, 1);
+    const vorlauf = (ersten.getDay() + 6) % 7;
+    for(let i = 0; i < vorlauf; i++) h += '<div class="mtag leer"></div>';
+    const tage = new Date(jahr, monat + 1, 0).getDate();
+    for(let t = 1; t <= tage; t++){
+      const d = new Date(jahr, monat, t), ds = zuText(d);
+      const we = d.getDay() === 0 || d.getDay() === 6;
+      const grund = freierTag(ds);
+      const ferien = FERIEN.some(([n,a,b]) => ds >= a && ds <= b);
+      const liste = nachTag[ds] || [];
+      const klassen = ['mtag'];
+      if(we) klassen.push('we');
+      if(ferien) klassen.push('ferien');
+      else if(grund) klassen.push('feiertag');
+      if(ds === heuteStr) klassen.push('heute');
+      if(liste.length) klassen.push('hat');
+      h += '<div class="'+klassen.join(' ')+'"'+(grund ? ' title="'+esc(grund)+'"' : '')+'>'+
+        '<span class="mnum">'+t+'</span>'+
+        liste.map(e => {
+          const g = D.gruppen[e.gid] || {};
+          const st = { geplant:'kal-geplant', offen:'kal-offen', frei:'kal-frei' }[e.status] || 'kal-geplant';
+          return '<button class="mchip '+st+'" style="--gf:'+gruppenFarbe(e.gid)+'" '+
+            'title="'+esc(g.name+' · '+nrText(e.nr)+' – '+e.titel)+'" onclick="einheitOeffnen(\''+e.id+'\')">'+
+            '<span>'+esc(g.name)+'</span><b>'+esc(String(e.nr))+'</b><i></i></button>';
+        }).join('')+'</div>';
+    }
+    h += '</div></div>';
+    m = new Date(jahr, monat + 1, 1);
+  }
+  return h + '</div>';
+}
+
+/* ---------- Liste ---------- */
+function kalenderListe(alle){
+  const heuteStr = heute();
+  let h = '<div class="karte" style="padding:0;overflow:auto"><table class="liste"><thead><tr>'+
+    '<th style="width:170px">Datum</th><th style="width:70px">KW</th><th style="width:130px">Gruppe</th>'+
+    '<th style="width:140px">Einheit</th><th>Thema</th><th style="width:130px" class="mitte">Status</th></tr></thead><tbody>';
+  let monat = '';
+  alle.forEach(e => {
+    const d = zuDatum(e.datum);
+    const mName = d.toLocaleDateString('de-DE', { month:'long', year:'numeric' });
+    if(mName !== monat){ monat = mName;
+      h += '<tr class="bereichzeile"><td colspan="6">'+esc(monat)+'</td></tr>'; }
+    const g = D.gruppen[e.gid] || {};
+    h += '<tr style="cursor:pointer"'+(e.datum === heuteStr ? ' class="istheute"' : '')+' onclick="einheitOeffnen(\''+e.id+'\')">'+
+      '<td><b>'+WOCHENTAGE[d.getDay()].slice(0,2)+'. '+datumDe(e.datum)+'</b></td>'+
+      '<td>KW '+isoKW(d)+'</td>'+
+      '<td><span class="legpunkt"><i style="background:'+gruppenFarbe(e.gid)+'"></i>'+esc(g.name||'')+'</span></td>'+
+      '<td>'+esc(nrText(e.nr))+'</td><td>'+esc(e.titel||'')+'</td>'+
+      '<td class="mitte">'+statusMarke(e)+'</td></tr>';
+  });
+  return h + '</tbody></table></div>';
 }
 </script>
 
