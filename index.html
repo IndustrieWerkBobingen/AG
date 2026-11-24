@@ -1776,8 +1776,11 @@ function naviBauen(){
 function gruppenMir(){
   const alle = D.gruppen;
   if(rolle === 'lehrkraft'){
-    const b = D.benutzer[meineMail] || {}; const erl = b.gruppen || [];
-    if(erl.length) { const o = {}; erl.forEach(g => { if(alle[g]) o[g] = alle[g]; }); return o; }
+    const b = D.benutzer[meineMail] || {};
+    const erl = (b.gruppen || []).filter(g => alle[g]);
+    if((b.gruppen || []).length){
+      const o = {}; erl.forEach(g => { o[g] = alle[g]; }); return o;
+    }
   }
   return alle;
 }
@@ -1812,6 +1815,12 @@ function alles(){
   gruppenWahlBauen(); naviBauen();
   el('topBenutzer').textContent = meinName ? meinName + ' · ' + (ROLLEN[rolle]||'') : '';
   const g = gruppeAktiv();
+  if(rolle === 'lehrkraft' && !g){
+    el('haupt').innerHTML = '<section><div class="karte"><div class="leerzustand">'+
+      '<b>Keine Gruppe freigegeben</b><p>Für dieses Konto ist noch keine Gruppe zugewiesen oder die zugewiesene Gruppe wurde gelöscht. '+
+      'Bitte beim Betreuer melden.</p></div></div></section>';
+    el('navi').innerHTML = ''; return;
+  }
   if(!darf(aktAns)) aktAns = Object.keys(ANSICHTEN).filter(darf)[0] || 'uebersicht';
   const f = { uebersicht:ansUebersicht, einheiten:ansEinheiten, bewertung:ansBewertung,
               blaetter:ansBlaetter, matrix:ansMatrix, gruppen:ansGruppen, einstellungen:ansEinstellungen }[aktAns];
@@ -2482,14 +2491,21 @@ function ansEinstellungen(){
   if(!ben.length) h += '<tr class="leer"><td colspan="5" class="sub">Noch keine Zugänge angelegt.</td></tr>';
   ben.forEach(b => h += '<tr><td><code>'+esc(b.mail)+'</code></td><td>'+esc(b.name||'')+'</td>'+
     '<td><span class="marke blau">'+esc(ROLLEN[b.rolle]||b.rolle)+'</span></td>'+
-    '<td>'+esc((b.gruppen||[]).map(g => (D.gruppen[g]||{}).name || g).join(', ') || 'alle')+'</td>'+
-    '<td style="text-align:right"><button class="btn sek klein" onclick="benutzerWeg(\''+esc(b.mail)+'\')">Entfernen</button></td></tr>');
+    '<td>'+(b.rolle === 'dozent'
+      ? '<span class="marke grau">alle</span>'
+      : ((b.gruppen||[]).length
+          ? esc(b.gruppen.map(g => (D.gruppen[g]||{}).name || g).join(', '))
+          : '<span class="marke gelb">alle – nicht eingeschränkt</span>'))+'</td>'+
+    '<td style="text-align:right">'+
+      (b.rolle === 'dozent' ? '' : '<button class="btn sek klein" onclick="gruppenZuweisen(\''+esc(b.mail)+'\')">Gruppen</button> ')+
+      '<button class="btn sek klein" onclick="benutzerWeg(\''+esc(b.mail)+'\')">Entfernen</button></td></tr>');
   h += '</tbody></table></div>'+
     '<h3>Zugang hinzufügen</h3><div class="feldreihe">'+
     '<div><label>E-Mail</label><input id="bnMail" type="email"></div>'+
     '<div><label>Name</label><input id="bnName"></div>'+
     '<div><label>Rolle</label><select id="bnRolle"><option value="lehrkraft">Lehrkraft</option><option value="dozent">Dozent</option></select></div>'+
     '<div><label>Passwort (nur bei neuem Konto)</label><input id="bnPass" type="text" placeholder="mindestens 6 Zeichen"></div></div>'+
+    '<p class="formhinweis">Nach dem Anlegen in der Zeile auf <b>Gruppen</b> klicken, um die Lehrkraft auf ihre Klassen einzuschränken.</p>'+
     '<button class="btn" onclick="benutzerAnlegen()">Anlegen</button><div id="bnStatus"></div></div>';
 
   h += '<div class="karte"><h2>Einsicht für Eltern aktualisieren</h2>'+
@@ -2537,6 +2553,36 @@ function ansEinstellungen(){
 function einstSpeichern(){ schreibe([['set','einst','app', Object.assign({}, einst(), { url: el('stUrl').value.trim() })]]).then(() => toast('Gespeichert')); }
 function regelnKopieren(id){ const t = el(id); t.select(); try { document.execCommand('copy'); toast('Kopiert'); } catch(e){ toast('Bitte von Hand kopieren'); } }
 function benutzerWeg(m){ if(!confirm(m + ' den Zugang entziehen?\n\nDas Login bleibt in Firebase bestehen, die Person sieht aber nichts mehr.')) return; schreibe([['del','benutzer',m]]); }
+function gruppenZuweisen(mail){
+  const b = D.benutzer[mail]; if(!b) return;
+  const gr = Object.values(D.gruppen).sort((a,b2) =>
+    (b2.schuljahr||'').localeCompare(a.schuljahr||'') || (a.name||'').localeCompare(b2.name||''));
+  if(!gr.length) return toast('Es sind noch keine Gruppen angelegt');
+  const gewaehlt = b.gruppen || [];
+  let h = '<p class="sub">'+esc(b.name || mail)+' sieht nur die angekreuzten Gruppen. '+
+    'Ist nichts angekreuzt, sieht die Lehrkraft alle Gruppen.</p>';
+  h += gr.map(g => '<label style="display:flex;gap:10px;align-items:center;text-transform:none;letter-spacing:0;'+
+    'font-size:14px;color:var(--text);margin-bottom:8px;padding:8px 10px;border:1px solid var(--grau-linie);border-radius:var(--radius-klein)">'+
+    '<input type="checkbox" value="'+esc(g.id)+'" class="grWahl" style="width:auto" '+(gewaehlt.indexOf(g.id) > -1 ? 'checked' : '')+'>'+
+    '<span><b>'+esc(g.name)+'</b><br><span class="sub">'+esc(g.schule||'')+' · '+esc(g.schuljahr||'')+
+    ' · '+schuelerDer(g.id).length+' Schüler</span></span></label>').join('');
+  fenster('Gruppen zuweisen', h,
+    '<button class="btn sek" onclick="gruppenAlle(\''+esc(mail)+'\')">Alle Gruppen</button>'+
+    '<button class="btn sek" onclick="schliesse()">Abbrechen</button>'+
+    '<button class="btn" onclick="gruppenSpeichern(\''+esc(mail)+'\')">Speichern</button>', 560);
+}
+function gruppenAlle(mail){
+  const b = D.benutzer[mail];
+  schreibe([['set','benutzer', mail, Object.assign({}, b, { gruppen:[] })]])
+    .then(() => { schliesse(); toast('Darf alle Gruppen sehen'); });
+}
+function gruppenSpeichern(mail){
+  const b = D.benutzer[mail];
+  const ids = [...document.querySelectorAll('.grWahl')].filter(c => c.checked).map(c => c.value);
+  schreibe([['set','benutzer', mail, Object.assign({}, b, { gruppen:ids })]])
+    .then(() => { schliesse(); toast(ids.length ? ids.length + ' Gruppe(n) zugewiesen' : 'Darf alle Gruppen sehen'); });
+}
+
 function benutzerAnlegen(){
   const mail = el('bnMail').value.trim().toLowerCase(), name = el('bnName').value.trim(), r = el('bnRolle').value, pass = el('bnPass').value;
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return toast('Bitte eine gültige E-Mail eintragen');
