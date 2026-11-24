@@ -1816,6 +1816,7 @@ function alles(){
   const f = { uebersicht:ansUebersicht, einheiten:ansEinheiten, bewertung:ansBewertung,
               blaetter:ansBlaetter, matrix:ansMatrix, gruppen:ansGruppen, einstellungen:ansEinstellungen }[aktAns];
   el('haupt').innerHTML = f ? f(g) : '';
+  if(typeof einsichtAutoAuffrischen === 'function') setTimeout(einsichtAutoAuffrischen, 800);
 }
 
 /* ---------- Übersicht ---------- */
@@ -2562,6 +2563,25 @@ function sicherungLaden(inp){
   r.readAsText(f); inp.value = '';
 }
 
+/* Einmal je Sitzung still prüfen, ob die Einsichtsseiten zum aktuellen Stand passen.
+   Nötig, weil sie sonst nur beim Speichern neu geschrieben werden. */
+let einsichtGeprueft = false;
+function einsichtAutoAuffrischen(){
+  if(einsichtGeprueft || rolle !== 'dozent') return;
+  einsichtGeprueft = true;
+  const sch = Object.values(D.schueler).filter(s => s.code);
+  if(!sch.length || sch.length > 120) return;
+  const bauen = () => {
+    const ops = sch.map(s => ['set','einsicht', s.code, einsichtBauen(s.id)]);
+    schreibe(ops).catch(() => {});
+  };
+  if(!cloudAktiv){ bauen(); return; }
+  /* Nur auffrischen, wenn eine Seite fehlt oder noch keine Termine kennt */
+  Promise.all(sch.slice(0, 20).map(s => db.collection('einsicht').doc(s.code).get()
+      .then(d => (d.exists && d.data().termine) ? 'ok' : 'alt').catch(() => 'ok')))
+    .then(r => { if(r.indexOf('alt') > -1) bauen(); });
+}
+
 /* Alle Einsichtsseiten neu schreiben – nötig nach einer neuen Fassung der Datei */
 function einsichtAuffrischen(){
   const sch = Object.values(D.schueler).filter(s => s.code);
@@ -2850,7 +2870,9 @@ function elternFotosLaden(){
 function elternSeite(){
   const d = elternDaten;
   if(!d) return el('haupt').innerHTML = '<section><div class="karte"><div class="leerzustand">'+
-    '<b>Kein Zugang gefunden</b><p>Der Code stimmt nicht oder es wurde noch keine Einheit freigegeben. Bitte den Zugangszettel prüfen.</p></div></div></section>';
+    '<b>Kein Zugang gefunden</b><p>Zu diesem Code <code>'+esc(elternCode)+'</code> gibt es noch keine Seite.</p>'+
+    '<p>Entweder stimmt der Code vom Zettel nicht, oder die Seite wurde noch nicht angelegt. '+
+    'Im zweiten Fall genügt es, wenn der Betreuer einmal in den Einstellungen auf „Jetzt auffrischen“ klickt.</p></div></div></section>';
   let h = '<section><h1>'+esc(d.name)+'</h1><p class="sub">'+esc(d.gruppe||'')+(d.schule?' · '+esc(d.schule):'')+(d.schuljahr?' · '+esc(d.schuljahr):'')+'</p>';
   const eh = d.einheiten || [];
   const da = eh.filter(e => e.anwesend === 'da').length;
@@ -2876,8 +2898,11 @@ function elternSeite(){
       '<p class="formhinweis" style="margin-top:10px">Termine können sich kurzfristig ändern – maßgeblich ist die Information über die Schule. '+
       'Zu Einheiten, die schon stattgefunden haben, erscheint die Rückmeldung, sobald sie abgeschlossen ist.</p></div>';
   }
-  if(!eh.length) return el('haupt').innerHTML = h +
-    leerHinweis('Noch nichts freigegeben','Sobald die erste Einheit abgeschlossen und freigegeben ist, erscheint sie hier mit Rückmeldung und Arbeitsblatt.') + '</section>';
+  if(!eh.length) return el('haupt').innerHTML = h + leerHinweis(
+    geplant.length ? 'Es geht bald los' : 'Noch keine Termine eingetragen',
+    geplant.length
+      ? 'Die Termine stehen oben. Nach jeder Einheit erscheint hier die Rückmeldung zusammen mit dem Arbeitsblatt.'
+      : 'Sobald die Termine feststehen, erscheinen sie hier. Nach jeder Einheit kommt die Rückmeldung dazu.') + '</section>';
 
   h += '<div class="karte"><h2>Bewertung über das Jahr</h2><div style="overflow:auto"><table class="liste"><thead><tr><th style="min-width:220px">Kriterium</th>'+
     eh.map(e => '<th class="mitte" title="'+esc(e.titel||'')+'">'+esc(String(e.nr))+'</th>').join('')+'</tr></thead><tbody>';
