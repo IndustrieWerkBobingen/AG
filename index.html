@@ -195,6 +195,7 @@ textarea{min-height:76px;resize:vertical}
       </select>
     </label>
     <button class="btn sek klein" onclick="beispieldaten()">Beispieldaten laden</button>
+    <button class="btn sek klein" onclick="demoJahr()">Demo-Jahr 2025/26</button>
     <button class="btn sek klein" onclick="testLeeren()">Alles l&ouml;schen</button>
     <span style="color:var(--text-hell)">Daten liegen nur in diesem Browser.</span>
   </div>
@@ -214,6 +215,1258 @@ textarea{min-height:76px;resize:vertical}
 <div id="loginBox"></div>
 <div id="standbyBox"></div>
 <div id="toastbox"></div>
+
+<script>
+/* QRCode for JavaScript – (c) 2009 Kazuhiko Arase – MIT-Lizenz (http://www.d-project.com/) */
+/* QRCode for JavaScript – Copyright (c) 2009 Kazuhiko Arase – MIT-Lizenz (http://www.d-project.com/) */
+var QRCode=(function(){var M={};function require(p){return M[p.replace("./","")];}
+M["QRMode"]=(function(){var module={exports:{}};module.exports = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+
+return module.exports;})();
+M["QRErrorCorrectLevel"]=(function(){var module={exports:{}};module.exports = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+
+
+return module.exports;})();
+M["QRMaskPattern"]=(function(){var module={exports:{}};module.exports = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+
+return module.exports;})();
+M["QRMath"]=(function(){var module={exports:{}};var QRMath = {
+
+	glog : function(n) {
+	
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+		
+		return QRMath.LOG_TABLE[n];
+	},
+	
+	gexp : function(n) {
+	
+		while (n < 0) {
+			n += 255;
+		}
+	
+		while (n >= 256) {
+			n -= 255;
+		}
+	
+		return QRMath.EXP_TABLE[n];
+	},
+	
+	EXP_TABLE : new Array(256),
+	
+	LOG_TABLE : new Array(256)
+
+};
+	
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+
+module.exports = QRMath;
+
+return module.exports;})();
+M["QRPolynomial"]=(function(){var module={exports:{}};var QRMath = require('./QRMath');
+
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+
+	var offset = 0;
+
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+
+QRPolynomial.prototype = {
+
+	get : function(index) {
+		return this.num[index];
+	},
+	
+	getLength : function() {
+		return this.num.length;
+	},
+	
+	multiply : function(e) {
+	
+		var num = new Array(this.getLength() + e.getLength() - 1);
+	
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+	
+		return new QRPolynomial(num, 0);
+	},
+	
+	mod : function(e) {
+	
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+	
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+	
+		var num = new Array(this.getLength() );
+		
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+		
+		for (var x = 0; x < e.getLength(); x++) {
+			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+		}
+	
+		// recursive call
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+
+module.exports = QRPolynomial;
+
+return module.exports;})();
+M["QRUtil"]=(function(){var module={exports:{}};var QRMode = require('./QRMode');
+var QRPolynomial = require('./QRPolynomial');
+var QRMath = require('./QRMath');
+var QRMaskPattern = require('./QRMaskPattern');
+
+var QRUtil = {
+
+    PATTERN_POSITION_TABLE : [
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],        
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90],
+        [6, 28, 50, 72, 94],
+        [6, 26, 50, 74, 98],
+        [6, 30, 54, 78, 102],
+        [6, 28, 54, 80, 106],
+        [6, 32, 58, 84, 110],
+        [6, 30, 58, 86, 114],
+        [6, 34, 62, 90, 118],
+        [6, 26, 50, 74, 98, 122],
+        [6, 30, 54, 78, 102, 126],
+        [6, 26, 52, 78, 104, 130],
+        [6, 30, 56, 82, 108, 134],
+        [6, 34, 60, 86, 112, 138],
+        [6, 30, 58, 86, 114, 142],
+        [6, 34, 62, 90, 118, 146],
+        [6, 30, 54, 78, 102, 126, 150],
+        [6, 24, 50, 76, 102, 128, 154],
+        [6, 28, 54, 80, 106, 132, 158],
+        [6, 32, 58, 84, 110, 136, 162],
+        [6, 26, 54, 82, 110, 138, 166],
+        [6, 30, 58, 86, 114, 142, 170]
+    ],
+
+    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+
+    getBCHTypeInfo : function(data) {
+        var d = data << 10;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
+        }
+        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+    },
+
+    getBCHTypeNumber : function(data) {
+        var d = data << 12;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
+        }
+        return (data << 12) | d;
+    },
+
+    getBCHDigit : function(data) {
+
+        var digit = 0;
+
+        while (data !== 0) {
+            digit++;
+            data >>>= 1;
+        }
+
+        return digit;
+    },
+
+    getPatternPosition : function(typeNumber) {
+        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+    },
+
+    getMask : function(maskPattern, i, j) {
+        
+        switch (maskPattern) {
+            
+        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+        case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+        case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+        case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+        case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+        case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+        case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+
+        default :
+            throw new Error("bad maskPattern:" + maskPattern);
+        }
+    },
+
+    getErrorCorrectPolynomial : function(errorCorrectLength) {
+
+        var a = new QRPolynomial([1], 0);
+
+        for (var i = 0; i < errorCorrectLength; i++) {
+            a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+        }
+
+        return a;
+    },
+
+    getLengthInBits : function(mode, type) {
+
+        if (1 <= type && type < 10) {
+
+            // 1 - 9
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 10;
+            case QRMode.MODE_ALPHA_NUM  : return 9;
+            case QRMode.MODE_8BIT_BYTE  : return 8;
+            case QRMode.MODE_KANJI      : return 8;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 27) {
+
+            // 10 - 26
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 12;
+            case QRMode.MODE_ALPHA_NUM  : return 11;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 10;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 41) {
+
+            // 27 - 40
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 14;
+            case QRMode.MODE_ALPHA_NUM  : return 13;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 12;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else {
+            throw new Error("type:" + type);
+        }
+    },
+
+    getLostPoint : function(qrCode) {
+        
+        var moduleCount = qrCode.getModuleCount();
+        var lostPoint = 0;
+        var row = 0; 
+        var col = 0;
+
+        
+        // LEVEL1
+        
+        for (row = 0; row < moduleCount; row++) {
+
+            for (col = 0; col < moduleCount; col++) {
+
+                var sameCount = 0;
+                var dark = qrCode.isDark(row, col);
+
+                for (var r = -1; r <= 1; r++) {
+
+                    if (row + r < 0 || moduleCount <= row + r) {
+                        continue;
+                    }
+
+                    for (var c = -1; c <= 1; c++) {
+
+                        if (col + c < 0 || moduleCount <= col + c) {
+                            continue;
+                        }
+
+                        if (r === 0 && c === 0) {
+                            continue;
+                        }
+
+                        if (dark === qrCode.isDark(row + r, col + c) ) {
+                            sameCount++;
+                        }
+                    }
+                }
+
+                if (sameCount > 5) {
+                    lostPoint += (3 + sameCount - 5);
+                }
+            }
+        }
+
+        // LEVEL2
+
+        for (row = 0; row < moduleCount - 1; row++) {
+            for (col = 0; col < moduleCount - 1; col++) {
+                var count = 0;
+                if (qrCode.isDark(row,     col    ) ) count++;
+                if (qrCode.isDark(row + 1, col    ) ) count++;
+                if (qrCode.isDark(row,     col + 1) ) count++;
+                if (qrCode.isDark(row + 1, col + 1) ) count++;
+                if (count === 0 || count === 4) {
+                    lostPoint += 3;
+                }
+            }
+        }
+
+        // LEVEL3
+
+        for (row = 0; row < moduleCount; row++) {
+            for (col = 0; col < moduleCount - 6; col++) {
+                if (qrCode.isDark(row, col) && 
+                        !qrCode.isDark(row, col + 1) && 
+                         qrCode.isDark(row, col + 2) && 
+                         qrCode.isDark(row, col + 3) && 
+                         qrCode.isDark(row, col + 4) && 
+                        !qrCode.isDark(row, col + 5) && 
+                         qrCode.isDark(row, col + 6) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount - 6; row++) {
+                if (qrCode.isDark(row, col) &&
+                        !qrCode.isDark(row + 1, col) &&
+                         qrCode.isDark(row + 2, col) &&
+                         qrCode.isDark(row + 3, col) &&
+                         qrCode.isDark(row + 4, col) &&
+                        !qrCode.isDark(row + 5, col) &&
+                         qrCode.isDark(row + 6, col) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        // LEVEL4
+        
+        var darkCount = 0;
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount; row++) {
+                if (qrCode.isDark(row, col) ) {
+                    darkCount++;
+                }
+            }
+        }
+        
+        var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+        lostPoint += ratio * 10;
+
+        return lostPoint;       
+    }
+
+};
+
+module.exports = QRUtil;
+
+return module.exports;})();
+M["QR8bitByte"]=(function(){var module={exports:{}};var QRMode = require('./QRMode');
+
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+
+QR8bitByte.prototype = {
+
+	getLength : function() {
+		return this.data.length;
+	},
+	
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			// not JIS ...
+			buffer.put(this.data.charCodeAt(i), 8);
+		}
+	}
+};
+
+module.exports = QR8bitByte;
+
+return module.exports;})();
+M["QRBitBuffer"]=(function(){var module={exports:{}};function QRBitBuffer() {
+	this.buffer = [];
+	this.length = 0;
+}
+
+QRBitBuffer.prototype = {
+
+	get : function(index) {
+		var bufIndex = Math.floor(index / 8);
+		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+	},
+	
+	put : function(num, length) {
+		for (var i = 0; i < length; i++) {
+			this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+		}
+	},
+	
+	getLengthInBits : function() {
+		return this.length;
+	},
+	
+	putBit : function(bit) {
+	
+		var bufIndex = Math.floor(this.length / 8);
+		if (this.buffer.length <= bufIndex) {
+			this.buffer.push(0);
+		}
+	
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+	
+		this.length++;
+	}
+};
+
+module.exports = QRBitBuffer;
+
+return module.exports;})();
+M["QRRSBlock"]=(function(){var module={exports:{}};var QRErrorCorrectLevel = require('./QRErrorCorrectLevel');
+
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+
+QRRSBlock.RS_BLOCK_TABLE = [
+
+	// L
+	// M
+	// Q
+	// H
+
+	// 1
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+	
+	// 2
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+
+	// 3
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+
+	// 4		
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+	
+	// 5
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+	
+	// 6
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+	
+	// 7		
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+	
+	// 8
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+	
+	// 9
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
+	
+	// 10		
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+
+	// 11
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+
+	// 12
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+
+	// 13
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+
+	// 14
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+
+	// 15
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12],
+
+	// 16
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+
+	// 17
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+
+	// 18
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+
+	// 19
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+
+	// 20
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+
+	// 21
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+
+	// 22
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+
+	// 23
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+
+	// 24
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+
+	// 25
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+
+	// 26
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+
+	// 27
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+
+	// 28
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+
+	// 29
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+
+	// 30
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+
+	// 31
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+
+	// 32
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+
+	// 33
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+
+	// 34
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+
+	// 35
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+
+	// 36
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+
+	// 37
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+
+	// 38
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+
+	// 39
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+
+	// 40
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+	
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+	
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+	}
+
+	var length = rsBlock.length / 3;
+	
+	var list = [];
+	
+	for (var i = 0; i < length; i++) {
+
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount  = rsBlock[i * 3 + 2];
+
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );	
+		}
+	}
+	
+	return list;
+};
+
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+
+module.exports = QRRSBlock;
+
+return module.exports;})();
+M["index"]=(function(){var module={exports:{}};//---------------------------------------------------------------------
+// QRCode for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//   http://www.opensource.org/licenses/mit-license.php
+//
+// The word "QR Code" is registered trademark of 
+// DENSO WAVE INCORPORATED
+//   http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+// Modified to work in node for this project (and some refactoring)
+//---------------------------------------------------------------------
+
+var QR8bitByte = require('./QR8bitByte');
+var QRUtil = require('./QRUtil');
+var QRPolynomial = require('./QRPolynomial');
+var QRRSBlock = require('./QRRSBlock');
+var QRBitBuffer = require('./QRBitBuffer');
+
+function QRCode(typeNumber, errorCorrectLevel) {
+	this.typeNumber = typeNumber;
+	this.errorCorrectLevel = errorCorrectLevel;
+	this.modules = null;
+	this.moduleCount = 0;
+	this.dataCache = null;
+	this.dataList = [];
+}
+
+QRCode.prototype = {
+	
+	addData : function(data) {
+		var newData = new QR8bitByte(data);
+		this.dataList.push(newData);
+		this.dataCache = null;
+	},
+	
+	isDark : function(row, col) {
+		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+			throw new Error(row + "," + col);
+		}
+		return this.modules[row][col];
+	},
+
+	getModuleCount : function() {
+		return this.moduleCount;
+	},
+	
+	make : function() {
+		// Calculate automatically typeNumber if provided is < 1
+		if (this.typeNumber < 1 ){
+			var typeNumber = 1;
+			for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+				var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+
+				var buffer = new QRBitBuffer();
+				var totalDataCount = 0;
+				for (var i = 0; i < rsBlocks.length; i++) {
+					totalDataCount += rsBlocks[i].dataCount;
+				}
+
+				for (var x = 0; x < this.dataList.length; x++) {
+					var data = this.dataList[x];
+					buffer.put(data.mode, 4);
+					buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+					data.write(buffer);
+				}
+				if (buffer.getLengthInBits() <= totalDataCount * 8)
+					break;
+			}
+			this.typeNumber = typeNumber;
+		}
+		this.makeImpl(false, this.getBestMaskPattern() );
+	},
+	
+	makeImpl : function(test, maskPattern) {
+		
+		this.moduleCount = this.typeNumber * 4 + 17;
+		this.modules = new Array(this.moduleCount);
+		
+		for (var row = 0; row < this.moduleCount; row++) {
+			
+			this.modules[row] = new Array(this.moduleCount);
+			
+			for (var col = 0; col < this.moduleCount; col++) {
+				this.modules[row][col] = null;//(col + row) % 3;
+			}
+		}
+	
+		this.setupPositionProbePattern(0, 0);
+		this.setupPositionProbePattern(this.moduleCount - 7, 0);
+		this.setupPositionProbePattern(0, this.moduleCount - 7);
+		this.setupPositionAdjustPattern();
+		this.setupTimingPattern();
+		this.setupTypeInfo(test, maskPattern);
+		
+		if (this.typeNumber >= 7) {
+			this.setupTypeNumber(test);
+		}
+	
+		if (this.dataCache === null) {
+			this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+		}
+	
+		this.mapData(this.dataCache, maskPattern);
+	},
+
+	setupPositionProbePattern : function(row, col)  {
+		
+		for (var r = -1; r <= 7; r++) {
+			
+			if (row + r <= -1 || this.moduleCount <= row + r) continue;
+			
+			for (var c = -1; c <= 7; c++) {
+				
+				if (col + c <= -1 || this.moduleCount <= col + c) continue;
+				
+				if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) || 
+                     (0 <= c && c <= 6 && (r === 0 || r === 6) ) || 
+                     (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+					this.modules[row + r][col + c] = true;
+				} else {
+					this.modules[row + r][col + c] = false;
+				}
+			}		
+		}		
+	},
+	
+	getBestMaskPattern : function() {
+	
+		var minLostPoint = 0;
+		var pattern = 0;
+	
+		for (var i = 0; i < 8; i++) {
+			
+			this.makeImpl(true, i);
+	
+			var lostPoint = QRUtil.getLostPoint(this);
+	
+			if (i === 0 || minLostPoint >  lostPoint) {
+				minLostPoint = lostPoint;
+				pattern = i;
+			}
+		}
+	
+		return pattern;
+	},
+	
+	createMovieClip : function(target_mc, instance_name, depth) {
+	
+		var qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
+		var cs = 1;
+	
+		this.make();
+
+		for (var row = 0; row < this.modules.length; row++) {
+			
+			var y = row * cs;
+			
+			for (var col = 0; col < this.modules[row].length; col++) {
+	
+				var x = col * cs;
+				var dark = this.modules[row][col];
+			
+				if (dark) {
+					qr_mc.beginFill(0, 100);
+					qr_mc.moveTo(x, y);
+					qr_mc.lineTo(x + cs, y);
+					qr_mc.lineTo(x + cs, y + cs);
+					qr_mc.lineTo(x, y + cs);
+					qr_mc.endFill();
+				}
+			}
+		}
+		
+		return qr_mc;
+	},
+
+	setupTimingPattern : function() {
+		
+		for (var r = 8; r < this.moduleCount - 8; r++) {
+			if (this.modules[r][6] !== null) {
+				continue;
+			}
+			this.modules[r][6] = (r % 2 === 0);
+		}
+	
+		for (var c = 8; c < this.moduleCount - 8; c++) {
+			if (this.modules[6][c] !== null) {
+				continue;
+			}
+			this.modules[6][c] = (c % 2 === 0);
+		}
+	},
+	
+	setupPositionAdjustPattern : function() {
+	
+		var pos = QRUtil.getPatternPosition(this.typeNumber);
+		
+		for (var i = 0; i < pos.length; i++) {
+		
+			for (var j = 0; j < pos.length; j++) {
+			
+				var row = pos[i];
+				var col = pos[j];
+				
+				if (this.modules[row][col] !== null) {
+					continue;
+				}
+				
+				for (var r = -2; r <= 2; r++) {
+				
+					for (var c = -2; c <= 2; c++) {
+					
+						if (Math.abs(r) === 2 || 
+                            Math.abs(c) === 2 ||
+                            (r === 0 && c === 0) ) {
+							this.modules[row + r][col + c] = true;
+						} else {
+							this.modules[row + r][col + c] = false;
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	setupTypeNumber : function(test) {
+	
+		var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+        var mod;
+	
+		for (var i = 0; i < 18; i++) {
+			mod = (!test && ( (bits >> i) & 1) === 1);
+			this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+		}
+	
+		for (var x = 0; x < 18; x++) {
+			mod = (!test && ( (bits >> x) & 1) === 1);
+			this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+		}
+	},
+	
+	setupTypeInfo : function(test, maskPattern) {
+	
+		var data = (this.errorCorrectLevel << 3) | maskPattern;
+		var bits = QRUtil.getBCHTypeInfo(data);
+        var mod;
+	
+		// vertical		
+		for (var v = 0; v < 15; v++) {
+	
+			mod = (!test && ( (bits >> v) & 1) === 1);
+	
+			if (v < 6) {
+				this.modules[v][8] = mod;
+			} else if (v < 8) {
+				this.modules[v + 1][8] = mod;
+			} else {
+				this.modules[this.moduleCount - 15 + v][8] = mod;
+			}
+		}
+	
+		// horizontal
+		for (var h = 0; h < 15; h++) {
+	
+			mod = (!test && ( (bits >> h) & 1) === 1);
+			
+			if (h < 8) {
+				this.modules[8][this.moduleCount - h - 1] = mod;
+			} else if (h < 9) {
+				this.modules[8][15 - h - 1 + 1] = mod;
+			} else {
+				this.modules[8][15 - h - 1] = mod;
+			}
+		}
+	
+		// fixed module
+		this.modules[this.moduleCount - 8][8] = (!test);
+	
+	},
+	
+	mapData : function(data, maskPattern) {
+		
+		var inc = -1;
+		var row = this.moduleCount - 1;
+		var bitIndex = 7;
+		var byteIndex = 0;
+		
+		for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+	
+			if (col === 6) col--;
+	
+			while (true) {
+	
+				for (var c = 0; c < 2; c++) {
+					
+					if (this.modules[row][col - c] === null) {
+						
+						var dark = false;
+	
+						if (byteIndex < data.length) {
+							dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+						}
+	
+						var mask = QRUtil.getMask(maskPattern, row, col - c);
+	
+						if (mask) {
+							dark = !dark;
+						}
+						
+						this.modules[row][col - c] = dark;
+						bitIndex--;
+	
+						if (bitIndex === -1) {
+							byteIndex++;
+							bitIndex = 7;
+						}
+					}
+				}
+								
+				row += inc;
+	
+				if (row < 0 || this.moduleCount <= row) {
+					row -= inc;
+					inc = -inc;
+					break;
+				}
+			}
+		}
+		
+	}
+
+};
+
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+	
+	var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+	
+	var buffer = new QRBitBuffer();
+	
+	for (var i = 0; i < dataList.length; i++) {
+		var data = dataList[i];
+		buffer.put(data.mode, 4);
+		buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+		data.write(buffer);
+	}
+
+	// calc num max data.
+	var totalDataCount = 0;
+	for (var x = 0; x < rsBlocks.length; x++) {
+		totalDataCount += rsBlocks[x].dataCount;
+	}
+
+	if (buffer.getLengthInBits() > totalDataCount * 8) {
+		throw new Error("code length overflow. (" + 
+            buffer.getLengthInBits() + 
+            ">" +  
+            totalDataCount * 8 + 
+            ")");
+	}
+
+	// end code
+	if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+		buffer.put(0, 4);
+	}
+
+	// padding
+	while (buffer.getLengthInBits() % 8 !== 0) {
+		buffer.putBit(false);
+	}
+
+	// padding
+	while (true) {
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD0, 8);
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD1, 8);
+	}
+
+	return QRCode.createBytes(buffer, rsBlocks);
+};
+
+QRCode.createBytes = function(buffer, rsBlocks) {
+
+	var offset = 0;
+	
+	var maxDcCount = 0;
+	var maxEcCount = 0;
+	
+	var dcdata = new Array(rsBlocks.length);
+	var ecdata = new Array(rsBlocks.length);
+	
+	for (var r = 0; r < rsBlocks.length; r++) {
+
+		var dcCount = rsBlocks[r].dataCount;
+		var ecCount = rsBlocks[r].totalCount - dcCount;
+
+		maxDcCount = Math.max(maxDcCount, dcCount);
+		maxEcCount = Math.max(maxEcCount, ecCount);
+		
+		dcdata[r] = new Array(dcCount);
+		
+		for (var i = 0; i < dcdata[r].length; i++) {
+			dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+		}
+		offset += dcCount;
+		
+		var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+		var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+		var modPoly = rawPoly.mod(rsPoly);
+		ecdata[r] = new Array(rsPoly.getLength() - 1);
+		for (var x = 0; x < ecdata[r].length; x++) {
+            var modIndex = x + modPoly.getLength() - ecdata[r].length;
+			ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+		}
+
+	}
+	
+	var totalCodeCount = 0;
+	for (var y = 0; y < rsBlocks.length; y++) {
+		totalCodeCount += rsBlocks[y].totalCount;
+	}
+
+	var data = new Array(totalCodeCount);
+	var index = 0;
+
+	for (var z = 0; z < maxDcCount; z++) {
+		for (var s = 0; s < rsBlocks.length; s++) {
+			if (z < dcdata[s].length) {
+				data[index++] = dcdata[s][z];
+			}
+		}
+	}
+
+	for (var xx = 0; xx < maxEcCount; xx++) {
+		for (var t = 0; t < rsBlocks.length; t++) {
+			if (xx < ecdata[t].length) {
+				data[index++] = ecdata[t][xx];
+			}
+		}
+	}
+
+	return data;
+
+};
+
+module.exports = QRCode;
+
+return module.exports;})();
+return M["index"];})();
+</script>
 
 <script>
 /* =====================================================================
@@ -400,6 +1653,19 @@ function fotoUrl(x){
   if(x.url) return x.url;                       // alte Einträge mit direkter Adresse
   const q = D.fotos[x.id] || elternFotos[x.id];
   return q ? q.d : '';
+}
+
+/* QR-Code als SVG – ohne Nachladen aus dem Netz */
+function qrSvg(text, groesse, einheit){
+  try {
+    const q = new QRCode(-1, 1);          // Stufe L reicht für einen kurzen Link
+    q.addData(text); q.make();
+    const n = q.getModuleCount(), r = 2, N = n + 2*r; let d = '';
+    for(let y = 0; y < n; y++) for(let x = 0; x < n; x++) if(q.isDark(y, x)) d += 'M'+(x+r)+' '+(y+r)+'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+N+' '+N+'" width="'+groesse+(einheit||'mm')+
+      '" height="'+groesse+(einheit||'mm')+'" shape-rendering="crispEdges">'+
+      '<rect width="'+N+'" height="'+N+'" fill="#fff"/><path d="'+d+'" fill="#000"/></svg>';
+  } catch(e){ return '<p class="sub">QR-Code konnte nicht erzeugt werden.</p>'; }
 }
 
 function fenster(titel, inhalt, fuss, breit){
@@ -793,8 +2059,42 @@ function ansBlaetter(g){
       return '<td class="mitte" style="cursor:pointer" onclick="blattAnsehen(\''+e.id+'\',\''+s.id+'\')">'+z+'</td>';
     }).join('') + '</tr>';
   });
-  h += '</tbody></table></div><p class="formhinweis" style="margin-top:10px">Spalte anklicken, um das Blatt zu öffnen. ✓ abgegeben · · begonnen · – nichts eingetragen</p></div></section>';
+  h += '</tbody></table></div><p class="formhinweis" style="margin-top:10px">Spalte anklicken, um das Blatt zu öffnen. ✓ abgegeben · · begonnen · – nichts eingetragen</p></div>';
+  h += '<div class="karte"><h2>Vorschau: so sehen die Blätter für die Schüler aus</h2>'+
+    '<p class="sub">Leere Ansicht zum Prüfen – hier wird nichts gespeichert.</p><div class="werkzeuge">'+
+    EINHEIT_VORLAGE.filter(([nr]) => BLAETTER[nr]).map(([nr,t]) =>
+      '<button class="btn sek klein" onclick="blattVorschau(\''+nr+'\')">'+esc(nrText(nr))+'</button>').join('')+
+    '</div></div></section>';
   return h;
+}
+
+/* Leere Vorschau eines Arbeitsblatts – zum Prüfen und Überarbeiten */
+function blattVorschau(nr){
+  const bl = BLAETTER[nr]; if(!bl) return;
+  let h = '<div class="hinweis">So bekommt der Schüler das Blatt am Tablet zu sehen. Eingaben werden hier nicht gespeichert.</div>';
+  bl.felder.forEach(fd => {
+    h += '<h3>'+esc(fd.text)+'</h3>' + (fd.hinweis ? '<p class="formhinweis">'+esc(fd.hinweis)+'</p>' : '');
+    if(fd.typ === 'tab'){
+      h += '<div style="overflow:auto"><table class="liste"><thead><tr><th></th>'+
+        fd.spalten.map(c => '<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+
+        fd.zeilen.map(z => '<tr><td style="min-width:150px"><b>'+esc(z)+'</b></td>'+
+          fd.spalten.map(() => '<td><input disabled></td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+    } else if(fd.typ === 'check' || fd.typ === 'wahl'){
+      h += fd.opt.map(o => '<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;'+
+        'font-size:14px;color:var(--text);margin-bottom:6px"><input type="'+(fd.typ==='check'?'checkbox':'radio')+
+        '" disabled style="width:auto"> '+esc(o)+'</label>').join('');
+    } else if(fd.typ === 'foto'){
+      h += '<button class="btn sek" disabled>Foto aufnehmen oder auswählen</button>';
+    } else if(fd.typ === 'kurz' || fd.typ === 'zahl'){
+      h += '<input disabled>';
+    } else {
+      h += '<textarea disabled></textarea>';
+    }
+  });
+  h += '<div class="hinweis gelb" style="margin-top:18px"><b>Etwas ändern?</b> Die Blätter stehen gesammelt '+
+       'im Abschnitt <code>BLAETTER</code> oben in dieser Datei. Kurze Texte kannst du dort direkt anpassen – '+
+       'für neue Felder oder andere Fragen sag Bescheid.</div>';
+  fenster('Vorschau: ' + bl.titel, h, '<button class="btn sek" onclick="schliesse()">Schließen</button>', 820);
 }
 function blattAnsehen(eid, sid){
   const e = D.einheiten[eid], s = D.schueler[sid]; if(!e || !s) return;
@@ -930,8 +2230,12 @@ function schuelerNeu(gid, sid){
     '<div class="feldreihe"><div><label>Vorname</label><input id="sVor" value="'+esc(s.vorname||'')+'"></div>'+
     '<div><label>Nachname</label><input id="sNach" value="'+esc(s.nachname||'')+'"></div>'+
     '<div><label>Klasse</label><input id="sKlasse" value="'+esc(s.klasse||'')+'" placeholder="8a"></div>'+
-    '<div><label>PIN für das Tablet (4 Ziffern)</label><input id="sPin" maxlength="4" value="'+esc(s.pin||'')+'" placeholder="wird erzeugt"></div></div>'+
-    '<p class="formhinweis">Mit der PIN meldet sich der Schüler am Gruppen-Tablet an. Der Einsichtscode für Schüler und Eltern wird automatisch erzeugt.</p>',
+    '<div><label>PIN für das Tablet (4 Ziffern)</label>'+
+      '<div style="display:flex;gap:6px"><input id="sPin" maxlength="4" inputmode="numeric" value="'+esc(s.pin||'')+'" placeholder="wird erzeugt">'+
+      '<button class="btn sek klein" style="white-space:nowrap" onclick="pinWuerfeln()">Neue PIN</button></div></div></div>'+
+    '<p class="formhinweis">Mit der PIN meldet sich der Schüler am Gruppen-Tablet an. '+
+    (sid ? 'Wird das Feld leer gelassen, bleibt die bisherige PIN bestehen. ' : '')+
+    'Der Einsichtscode für Schüler und Eltern wird einmalig erzeugt und ändert sich nicht.</p>',
     '<button class="btn sek" onclick="schliesse()">Abbrechen</button><button class="btn" onclick="schuelerSpeichern(\''+gid+'\',\''+(sid||'')+'\')">Speichern</button>');
 }
 function schuelerSpeichern(gid, sid){
@@ -940,11 +2244,12 @@ function schuelerSpeichern(gid, sid){
   const alt = sid ? D.schueler[sid] : null;
   const id = sid || uid();
   let pin = el('sPin').value.replace(/\D/g,'').slice(0,4);
-  if(pin.length !== 4) pin = String(Math.floor(1000 + Math.random()*9000));
+  if(pin.length !== 4) pin = (alt && alt.pin) ? alt.pin : String(Math.floor(1000 + Math.random()*9000));
   const o = { id, gid, vorname:v, nachname:n, klasse:el('sKlasse').value.trim(), pin,
     code:(alt && alt.code) || neuerCode(8), aktiv:true };
   schreibe([['set','schueler',id,o]]).then(() => { schliesse(); toast('Gespeichert'); });
 }
+function pinWuerfeln(){ el('sPin').value = String(Math.floor(1000 + Math.random()*9000)); }
 function schuelerWeg(sid){
   const s = D.schueler[sid]; if(!s) return;
   if(!confirm('„'+s.vorname+' '+s.nachname+'“ löschen?\n\nAlle Bewertungen und Arbeitsblätter dieses Schülers werden mit gelöscht.')) return;
@@ -955,17 +2260,28 @@ function schuelerWeg(sid){
 function codeZettel(sid){
   const s = D.schueler[sid]; if(!s) return;
   const g = D.gruppen[s.gid] || {};
-  const url = (einst().url || (location.protocol === 'https:' ? location.origin + location.pathname : 'https://…')) + '#e=' + s.code;
+  const basis = (einst().url || (location.protocol === 'https:' ? location.origin + location.pathname : '')).split('#')[0];
+  const url = basis ? basis + '#e=' + s.code : '';
   fenster('Zugangszettel',
-    '<div style="border:2px dashed var(--grau-linie);border-radius:10px;padding:20px">'+
+    '<div id="zettel" style="border:2px dashed var(--grau-linie);border-radius:10px;padding:22px">'+
     '<img src="'+LOGO+'" style="height:30px"><h2 style="margin:12px 0 2px">Einsicht in die Technik-AG</h2>'+
-    '<p class="sub">'+esc(s.vorname+' '+s.nachname)+' · '+esc(g.name||'')+'</p>'+
-    '<p>Unter dieser Adresse könnt ihr jederzeit sehen, was in der AG gemacht wurde, welche Arbeitsblätter ausgefüllt wurden und wie die Rückmeldung ausfällt:</p>'+
-    '<p style="font-size:15px;word-break:break-all"><b>'+esc(url)+'</b></p>'+
-    '<p>Persönlicher Zugangscode: <b style="font-size:20px;letter-spacing:2px">'+esc(s.code)+'</b></p>'+
-    '<p class="formhinweis">Bitte nicht weitergeben – wer den Code hat, sieht die Rückmeldungen.</p>'+
-    '<p class="formhinweis">PIN für das Tablet in der AG: <b>'+esc(s.pin)+'</b></p></div>',
-    '<button class="btn sek" onclick="schliesse()">Schließen</button><button class="btn" onclick="window.print()">Drucken</button>', 620);
+    '<p class="sub">'+esc(s.vorname+' '+s.nachname)+' · '+esc(g.name||'')+(g.schule?' · '+esc(g.schule):'')+'</p>'+
+    '<div style="display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;margin-top:14px">'+
+      '<div style="flex:1;min-width:260px">'+
+        '<p style="margin:0 0 10px">Hier könnt ihr jederzeit sehen, was in der AG gemacht wurde, '+
+        'welche Arbeitsblätter ausgefüllt wurden und wie die Rückmeldung ausfällt:</p>'+
+        (url ? '<p style="font-size:14px;word-break:break-all;margin:0 0 10px"><b>'+esc(url)+'</b></p>'
+             : '<div class="hinweis rot" style="margin:0 0 10px">Es ist noch keine Adresse der Seite hinterlegt. '+
+               'Trage sie unter <b>Einstellungen → Allgemein</b> ein, dann enthält der Zettel Link und QR-Code.</div>')+
+        '<p style="margin:0 0 6px">Persönlicher Zugangscode</p>'+
+        '<p style="margin:0;font-size:26px;letter-spacing:3px;font-weight:700;color:var(--blau-dunkel)">'+esc(s.code)+'</p>'+
+      '</div>'+
+      (url ? '<div style="text-align:center">'+qrSvg(url, 42)+
+             '<p class="formhinweis" style="margin:4px 0 0;text-align:center">Mit der Handykamera scannen</p></div>' : '')+
+    '</div>'+
+    '<p class="formhinweis" style="margin-top:16px">Bitte nicht weitergeben – wer den Code hat, sieht die Rückmeldungen.</p>'+
+    '<p class="formhinweis" style="margin:0">PIN für das Tablet in der AG: <b>'+esc(s.pin)+'</b></p></div>',
+    '<button class="btn sek" onclick="schliesse()">Schließen</button><button class="btn" onclick="window.print()">Drucken</button>', 680);
 }
 </script>
 
@@ -1011,6 +2327,15 @@ function ansEinstellungen(){
     '<div class="werkzeuge"><b style="font-size:13px">Firestore-Regeln</b><span style="margin-left:auto"></span><button class="btn sek klein" onclick="regelnKopieren(\'regelnFs\')">Kopieren</button></div>'+
     '<textarea id="regelnFs" style="min-height:260px;font-family:monospace;font-size:12px" readonly>'+esc(REGELN_FS)+'</textarea>'+
     '<div class="hinweis gruen" style="margin-top:14px"><b>Kein Firebase Storage nötig.</b> Die Fotos werden verkleinert und zusammen mit den Arbeitsblättern in Firestore abgelegt. Damit bleibt alles im kostenlosen Spark-Tarif.</div></div>';
+
+  h += '<div class="karte"><h2>Beispiel-Jahr zum Vorzeigen</h2>'+
+    '<p class="sub">Legt ein vollständig ausgefülltes Schuljahr 2025/26 an: sechs Schüler, elf Einheiten, '+
+    'Bewertungen mit erkennbarer Entwicklung, ausgefüllte Arbeitsblätter und Fotos. '+
+    'Gedacht für den Elternabend – alles lässt sich mit einem Klick wieder entfernen.</p>'+
+    '<div class="werkzeuge"><button class="btn" onclick="demoJahr()">Demo-Jahr anlegen</button>'+
+    '<button class="btn sek" onclick="demoLinks()">Einsichtslinks zeigen</button>'+
+    '<button class="btn sek" onclick="demoWeg()">Demo-Jahr löschen</button></div>'+
+    '<p class="formhinweis">Die Beispielgruppe heißt „8.3.1 (Beispiel)“ und steht neben deinen echten Gruppen in der Auswahl oben.</p></div>';
 
   h += '<div class="karte schmal"><h2>Datensicherung</h2><p class="sub" id="datenHinweis"></p>'+
     '<div class="werkzeuge"><button class="btn sek" onclick="sicherung()">Als Datei sichern</button>'+
@@ -1310,6 +2635,230 @@ function elternSeite(){
   h += '<p class="formhinweis">Stand: '+esc(new Date(d.aktualisiert||Date.now()).toLocaleString('de-DE'))+'</p>';
   el('haupt').innerHTML = h + '</section>';
   el('topBenutzer').textContent = 'Einsicht';
+}
+</script>
+
+<script>
+/* =====================================================================
+   Demo-Jahr 2025/26 – vollständig gefüllt, zum Vorzeigen beim Elternabend
+   Alle Datensätze beginnen mit "demo_" und lassen sich mit einem Klick
+   wieder entfernen.
+   ===================================================================== */
+const DEMO_FOTO1 = "data:image/jpeg;base64,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";
+const DEMO_FOTO2 = "data:image/jpeg;base64,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";
+
+const DEMO_SCHUELER = [
+  // Name, Profil: Startwert und Entwicklung je Bereich (fach, sozial, interesse)
+  ['Mia','Ahrens',   '8a', { fach:[3,-1.6], soz:[3,-1.2], int:[2,-0.8] }, 'steigert sich deutlich'],
+  ['Luca','Berger',  '8a', { fach:[2, 0.0], soz:[2,-0.3], int:[2, 0.0] }, 'konstant gut'],
+  ['Emir','Demir',   '8b', { fach:[4,-1.8], soz:[3,-1.0], int:[3,-1.4] }, 'braucht Anlauf, wird stark'],
+  ['Sophie','Graf',  '8a', { fach:[2,-0.6], soz:[4,-0.9], int:[2,-0.4] }, 'fachlich stark, Team schwieriger'],
+  ['Jonas','Keller', '8b', { fach:[3,-0.5], soz:[3,-0.6], int:[1, 0.0] }, 'hoch motiviert, Ausdauer wechselhaft'],
+  ['Lea','Wagner',   '8a', { fach:[2,-0.9], soz:[1, 0.0], int:[1, 0.0] }, 'durchweg sehr stark']
+];
+const DEMO_BEREICH = { tv:'fach', ef:'fach', ge:'fach', zu:'soz', ko:'soz', te:'soz', re:'soz', kz:'soz', au:'soz', mo:'int', in:'int', ne:'int' };
+
+/* Rückmeldungen je Einheit – [positiv, daran arbeiten, Bemerkung] */
+const DEMO_TEXTE = {
+  '1': ['Hat die Kiste sofort sortiert und dem Team die Teile zugereicht.','Beim Bauen die Anleitung Schritt für Schritt lesen, nicht überspringen.','Beim Aufräumen von sich aus mitgeholfen.'],
+  '2': ['Hat die Abweichung selbst gemessen und den Wert korrigiert.','Beim Messen genauer ablesen – das Maßband flach auf den Boden.','Hat verstanden, warum das Fahrzeug nie exakt stoppt.'],
+  '3': ['Hat den Zusammenhang Sensor–Programm als Erste erklärt.','Beim Ausrichten des Abstandssensors sorgfältiger sein.',''],
+  '4': ['Hat die Übersetzung sauber ausgerechnet und am Modell gezeigt.','Nur einen Wert auf einmal ändern, sonst ist der Vergleich wertlos.','Der Vergleich schnell gegen stark saß sofort.'],
+  '5': ['Hat den Greifer dreimal umgebaut, bis er gehalten hat.','Die Skizze vollständig beschriften (Motor, Drehpunkt, Pfeil).','Bei Rückschlägen drangeblieben statt aufzugeben.'],
+  '6': ['Hat die Störung über die Checkliste selbst gefunden.','Erst jeden Schritt einzeln testen, dann verketten.',''],
+  '7': ['Hat den Zeitplan im Team durchgesetzt und darauf geachtet.','Vor dem Bauen die Planungszeit wirklich nutzen.','Hat im Team die Aufgaben verteilt.'],
+  '8': ['Hat bei der Präsentation frei gesprochen und Fragen beantwortet.','Beim Vorführen lauter sprechen.','Ehrliche Selbsteinschätzung, auch bei Schwächen.'],
+  'FB':['Eigene Idee entwickelt und bis zum Ende verfolgt.','Früher um Hilfe fragen, wenn es zehn Minuten klemmt.',''],
+  'WB':['Im Finale ruhig geblieben und das Team zusammengehalten.','Die Strategie vor dem Lauf einmal gemeinsam durchsprechen.','Fair gegenüber den anderen Teams.'],
+  'AB':['Hat das Jahr überzeugend zusammengefasst.','','Möchte in der 9. Klasse weitermachen.']
+};
+
+/* Ausgefüllte Arbeitsblätter – Variante je Schüler über den Index */
+function demoAntwort(nr, i, name){
+  const v = (a) => a[i % a.length];
+  const F = {
+    '1': { teile:{ '0_0':'1','0_1':'Das ist der Computer vom Modell','1_0':'1','1_1':'Dreht langsam, aber stark','2_0':'2','2_1':'Treiben die Räder an',
+                   '3_0':'1','3_1':'Misst, wie weit etwas weg ist','4_0':'1','4_1':'Erkennt Farben','5_0':'1','5_1':'Merkt, wenn man drückt' },
+           regeln: v(['Teile bleiben auf dem Tisch. Jedes Teil zurück in die Kiste. Am Ende zählen wir.',
+                      'Nichts einstecken, Kiste am Ende prüfen, Tablet flach hinlegen.',
+                      'Erst fragen, dann ziehen. Essen nicht am Arbeitsplatz.']),
+           fortschritt:{0:true,1:true,2:true,3:true,4:true},
+           rueck: v(['Das Bauen hat Spaß gemacht, die Kabel waren zuerst verwirrend.',
+                     'Am Anfang habe ich die Teile nicht gefunden, danach ging es schnell.',
+                     'Ich wusste nicht, dass so viel Technik in dem Kasten steckt.']) },
+    '2': { meter:{ '0_0':'5.7','0_1': v(['93','88','104']),'0_2': v(['-7','-12','+4']),
+                   '1_0':'6.2','1_1': v(['99','96','101']),'1_2': v(['-1','-4','+1']),
+                   '2_0':'6.3','2_1':'100','2_2':'0' },
+           aender: v(['Wir haben den Wert nach jeder Fahrt ein bisschen größer gemacht.',
+                      'Zuerst zu wenig, dann haben wir gerechnet: eine Umdrehung sind etwa 17 cm.',
+                      'Wir haben die Geschwindigkeit runtergesetzt, dann war es viel genauer.']),
+           quadrat: v(['6','11','4']),
+           warum: v(['Die Räder rutschen beim Anfahren. Und der Boden ist nicht überall gleich.',
+                     'Weil die Motoren nicht exakt gleich laufen und das Fahrzeug leicht zieht.',
+                     'Beim Bremsen rollt es noch ein Stück weiter.']) },
+    '3': { sens:{ '0_0':'Wenn man die Hand davor hält','0_1':'4 cm','0_2':'über 150 cm',
+                  '1_0':'Wenn man andere Farben drunter legt','1_1':'schwarz','1_2':'weiß',
+                  '2_0':'Wenn man den Hub kippt','2_1':'-90','2_2':'90' },
+           stopp: v(['15','12','18']),
+           erfolg:{0:true,1:true,2:true,3:(i%2===0)},
+           werk: v(['An der Schranke am Werkstor und beim Aufzug.',
+                    'Bei Maschinen, die stoppen, wenn man in den Bereich greift.',
+                    'An Förderbändern, die erkennen, ob ein Teil da ist.']) },
+    '4': { zaehne:{ '0_0':'36','0_1':'12','0_2':'1 : 3','1_0':'12','1_1':'36','1_2':'3 : 1' },
+           versuch:{ '0_0': v(['6.4','6.9','6.1']),'0_1': v(['6.2','6.7','6.0']),'0_2': v(['2','1','2']),
+                     '1_0': v(['14.8','15.3','14.2']),'1_1': v(['14.5','15.0','14.0']),'1_2': v(['5','6','5']) },
+           regel:'Großes Zahnrad an der Radachse: langsamer, aber mehr Kraft. Kleines Zahnrad an der Radachse: schneller, aber weniger Kraft.',
+           alltag: v(['Fahrrad-Gangschaltung, Akkuschrauber, Handmixer.',
+                      'Beim Fahrrad, bei der Bohrmaschine und bei der Seilwinde.',
+                      'Gangschaltung, Uhr, Küchenmaschine.']) },
+    '5': { mech: v(['Hebel / Arm (drehen → heben)','Zahnstange (drehen → schieben)','Hebel / Arm (drehen → heben)']),
+           test:{ '0_0':'ja','0_1':'','1_0':'ja','1_1':'','2_0': v(['ja','ja','noch nicht']),'2_1': v(['','','Der Würfel fällt die letzten zwei Zentimeter']) },
+           besch: v(['Der Motor dreht den Arm nach oben, die Backen schließen sich über ein Zahnrad. Das größte Problem war, dass das Modell nach vorn gekippt ist – wir haben den Hub nach hinten gesetzt.',
+                     'Eine Zahnstange schiebt die Backe zu. Erst hat der Greifer unter Last aufgemacht, mit einer Schnecke hält er jetzt.',
+                     'Der Arm hebt über einen langen Balken. Die Achse hatte zu viel Spiel, wir haben Buchsen dazugesetzt.']) },
+    '6': { plan:{ '0_0':'Hinfahren','0_1':'Motor A und B','1_0':'Greifer schließen','1_1':'Motor C',
+                  '2_0':'Zurückfahren und drehen','2_1':'Motor A und B','3_0':'Zur roten Zone fahren','3_1':'Farbsensor',
+                  '4_0':'Greifer öffnen','4_1':'Motor C' },
+           stoer:{0:true,1:true,2:true,3:true,4:true,5:(i%3!==0)},
+           rollen: v(['Erst Mia programmiert, dann Luca. Emir hat geprüft.',
+                      'Wir haben nach 30 Minuten getauscht wie abgemacht.',
+                      'Jeder war einmal Prüfer.']),
+           fehler: v(['Das Kabel von Motor C steckte in Port D. Gefunden über die Checkliste.',
+                      'Der Abstandssensor zeigte nach unten und hat den Tisch gemessen.',
+                      'Die Geschwindigkeit war zu hoch, das Fahrzeug ist über die Zone gefahren.']) },
+    '7': { aufg:{ '0_0': v(['Mia','Luca','Emir']),'0_1':'Förderband bauen','0_2':'nach 30 min',
+                  '1_0': v(['Luca','Emir','Sophie']),'1_1':'Farbsensor einbauen und testen','1_2':'nach 50 min',
+                  '2_0': v(['Emir','Mia','Jonas']),'2_1':'Weiche programmieren','2_2':'heute',
+                  '3_0':'alle','3_1':'Durchlauf testen','3_2':'nächste Woche','4_0':'','4_1':'','4_2':'' },
+           stand: v(['Das Band läuft und der Sensor erkennt rot und blau. Die Weiche klemmt noch.',
+                     'Der Drehteller funktioniert, das Programm wirft noch beide Farben in denselben Behälter.',
+                     'Aufnehmen und Transport stehen, das Ablegen fehlt.']),
+           feedb: v(['Wir bauen die Weiche flacher, damit die Würfel nicht hängen bleiben.',
+                     'Wir prüfen die Farbe zweimal, bevor die Weiche schaltet.',
+                     'Wir machen die Ablagezone größer.']),
+           naechst: v(['Weiche umbauen','Programm aufräumen','Ablage bauen']) },
+    '8': { aufgabe:'Wir sollten eine Anlage bauen, die rote und blaue Teile in zwei Behälter sortiert.',
+           loesung: v(['Ein Förderband bringt das Teil am Farbsensor vorbei. Je nach Farbe dreht ein Motor die Weiche nach links oder rechts.',
+                       'Ein Drehteller nimmt das Teil auf und dreht es zum richtigen Behälter.',
+                       'Ein Fahrzeug mit Greifer holt das Teil und fährt es zur passenden Zone.']),
+           gelernt: v(['Fünf von fünf Durchläufen haben geklappt. Am Anfang hat der Sensor bei Sonne falsch gemessen – wir haben eine Abdeckung gebaut. Gelernt habe ich, dass man einzeln testen muss.',
+                       'Vier von fünf. Einmal ist ein Teil quer gefallen. Ich weiß jetzt, dass man beim Bauen an die Fehler denken muss.',
+                       'Es hat am Ende funktioniert. Ich habe gelernt, im Team abzusprechen, bevor man etwas umbaut.']),
+           selbst:{ '0_0': v(['voll','eher ja','voll']),'1_0': v(['eher ja','voll','eher ja']),'2_0': v(['eher ja','eher ja','voll']),
+                    '3_0':'voll','4_0': v(['voll','eher ja','voll']),'5_0': v(['voll','eher ja','eher ja']),'6_0':'voll' } },
+    'FB':{ name: v(['Der Türsteher','Die Waage','Der Zeichenroboter']),
+           kann: v(['Ein Tor, das sich öffnet, wenn man den Kraftsensor drückt, und nach drei Sekunden wieder schließt.',
+                    'Misst, wie schwer ein Gegenstand ist, und zeigt es auf der Lichtmatrix.',
+                    'Hält einen Stift und malt ein Muster auf Papier.']),
+           teile: v(['Ein mittlerer Motor, der Kraftsensor','Der Kraftsensor und der Hub','Zwei Motoren']),
+           problem: v(['Das Tor ist immer wieder aufgesprungen. Wir haben ein Zahnrad mit mehr Zähnen genommen.',
+                       'Die Anzeige hat gezittert. Jetzt messen wir dreimal und nehmen den Mittelwert.',
+                       'Der Stift hat nicht aufgedrückt. Wir haben ein Gummi zum Nachdrücken eingebaut.']) },
+    'WB':{ team: v(['Die Schrauber – Mia, Luca','Blitz – Emir, Sophie','Team Zahnrad – Jonas, Lea']),
+           gut: v(['Mit dem Greifer von vorn, langsam anfahren.','Mit einem Schieber, das geht schneller als greifen.','Greifer von oben.']),
+           ziel: v(['Mit dem Farbsensor auf der roten Matte.','Strecke abgefahren und gezählt.','Farbsensor, zur Sicherheit auch die Strecke begrenzt.']),
+           hindernis: v(['Rechts herum mit zwei 90-Grad-Drehungen.','Großer Bogen links.','Rechts vorbei, dann zurück auf die Linie.']),
+           laeufe:{ '0_0': v(['48','52','44']),'0_1':'Gut gefahren, Gut verloren','0_2':'Greifer tiefer',
+                    '1_0': v(['39','41','36']),'1_1':'Hindernis berührt','1_2':'Langsamer in die Kurve',
+                    '2_0': v(['34','35','31']),'2_1':'Sauber durch','2_2':'nichts',
+                    '3_0': v(['33','34','30']),'3_1':'Bester Lauf','3_2':'' } },
+    'AB':{ highlight: v(['Der Wettbewerb am Ende, besonders das Finale.','Als unsere Sortieranlage zum ersten Mal richtig lief.','Das freie Bauen, weil wir machen konnten, was wir wollten.']),
+           schwer: v(['Das Programmieren mit den Bedingungen hat gedauert.','Am Anfang war es viel auf einmal.','Wenn etwas dreimal nicht klappt, wird man ungeduldig.']),
+           gelernt: v(['Dass man Fehler der Reihe nach sucht und nicht alles gleichzeitig ändert.',
+                       'Dass ich dranbleiben kann, wenn ich mir die Aufgabe in kleine Schritte zerlege.',
+                       'Dass Technik mehr mit Ausprobieren zu tun hat, als ich dachte.']),
+           weiter: v(['Ja, auf jeden Fall','Ja, auf jeden Fall','Vielleicht – ich möchte erst mehr wissen']),
+           ausbildung: v(['Ja','Vielleicht','Ja']) }
+  };
+  return F[nr] || {};
+}
+
+function demoJahr(){
+  if(Object.values(D.gruppen).some(g => String(g.id).indexOf('demo_') === 0)){
+    if(!confirm('Es gibt bereits ein Demo-Jahr. Soll es neu aufgebaut werden?')) return;
+  }
+  const gid = 'demo_g2526';
+  const ops = [['set','gruppen',gid,{ id:gid, name:'8.3.1 (Beispiel)', schule:'Mittelschule Bobingen', schuljahr:'2025/26', jahrgang:8 }]];
+
+  const sids = DEMO_SCHUELER.map(([v,n,kl], i) => {
+    const id = 'demo_s' + i;
+    ops.push(['set','schueler',id,{ id, gid, vorname:v, nachname:n, klasse:kl,
+      pin:String(1234 + i*111).slice(0,4), code:'DEMO' + String(i+1) + 'XY' + (i+3), aktiv:true }]);
+    return id;
+  });
+
+  /* Termine: alle zwei Wochen ab Ende September 2025 */
+  const start = new Date(2025, 8, 23);
+  const eids = EINHEIT_VORLAGE.map(([nr, titel], i) => {
+    const d = new Date(start); d.setDate(d.getDate() + i * 21);
+    const id = 'demo_e' + nr;
+    ops.push(['set','einheiten',id,{ id, gid, nr, titel,
+      datum: d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),
+      status:'frei' }]);
+    return { id, nr };
+  });
+
+  const begrenze = x => Math.max(1, Math.min(5, Math.round(x)));
+  eids.forEach((e, ei) => {
+    const anteil = ei / (eids.length - 1);           // 0 am Anfang, 1 am Ende
+    sids.forEach((sid, si) => {
+      const prof = DEMO_SCHUELER[si][3];
+      /* Zwei Fehltage im Jahr, damit die Anwesenheit echt wirkt */
+      const fehlt = (si === 2 && ei === 1) || (si === 4 && ei === 6);
+      ops.push(['set','anw', e.id+'_'+sid, { eid:e.id, sid, status: fehlt ? 'ent' : 'da' }]);
+      if(fehlt) return;
+
+      const w = {};
+      ALLE_KRIT.forEach(([kid], ki) => {
+        const [start0, delta] = prof[DEMO_BEREICH[kid]];
+        const schwankung = ((si + ki + ei) % 3) * 0.35 - 0.35;
+        w[kid] = begrenze(start0 + delta * anteil + schwankung);
+      });
+      const t = DEMO_TEXTE[e.nr] || ['','',''];
+      ops.push(['set','bew', e.id+'_'+sid, { eid:e.id, sid, w,
+        pos: t[0], next: t[1], bem: (si % 3 === 0 ? t[2] : ''), sp: (si === ei % 6 || si === (ei+1) % 6) }]);
+
+      const fotos = [];
+      if(e.nr === '1' && si % 2 === 0) fotos.push({ feld:'foto', id:'demo_f1', name:'fahrzeug.jpg' });
+      if(e.nr === '5' && si % 2 === 1) fotos.push({ feld:'foto', id:'demo_f2', name:'greifer.jpg' });
+      if(e.nr === '7' && si === 0)     fotos.push({ feld:'foto', id:'demo_f2', name:'skizze.jpg' });
+      ops.push(['set','antw', e.id+'_'+sid, { eid:e.id, sid, ab:true, fotos,
+        f: demoAntwort(e.nr, si, DEMO_SCHUELER[si][0]), stand:new Date().toISOString() }]);
+    });
+  });
+
+  ops.push(['set','fotos','demo_f1',{ id:'demo_f1', eid:'demo_e1', sid:'demo_s0', feld:'foto', name:'fahrzeug.jpg', d:DEMO_FOTO1 }]);
+  ops.push(['set','fotos','demo_f2',{ id:'demo_f2', eid:'demo_e5', sid:'demo_s1', feld:'foto', name:'greifer.jpg', d:DEMO_FOTO2 }]);
+
+  schreibe(ops).then(() => { aktGruppe = gid; schliesse(); alles();
+    toast('Demo-Jahr 2025/26 angelegt'); });
+}
+
+function demoWeg(){
+  const treffer = [];
+  ['gruppen','schueler','einheiten','anw','bew','antw','fotos'].forEach(c =>
+    Object.keys(D[c] || {}).forEach(id => { if(id.indexOf('demo_') === 0 || String(id).indexOf('_demo_') > -1) treffer.push(['del', c, id]); }));
+  Object.values(D.schueler).forEach(s => { if(String(s.id).indexOf('demo_') === 0 && s.code) treffer.push(['del','einsicht', s.code]); });
+  if(!treffer.length) return toast('Kein Demo-Jahr vorhanden');
+  if(!confirm('Demo-Jahr vollständig löschen? ' + treffer.length + ' Einträge werden entfernt.')) return;
+  aktGruppe = '';
+  schreibe(treffer).then(() => toast('Demo-Jahr gelöscht'));
+}
+
+/* Übersicht aller Einsichtslinks des Demo-Jahres – praktisch für den Elternabend */
+function demoLinks(){
+  const sch = Object.values(D.schueler).filter(s => String(s.id).indexOf('demo_') === 0);
+  if(!sch.length) return toast('Kein Demo-Jahr vorhanden');
+  const basis = (einst().url || (location.protocol === 'https:' ? location.origin + location.pathname : '')).split('#')[0];
+  let h = '<p class="sub">So sehen Eltern die Seite. Am Elternabend am besten vorher öffnen.</p>'+
+    '<div style="overflow:auto"><table class="liste"><thead><tr><th>Schüler</th><th>Profil im Beispiel</th><th>Link</th></tr></thead><tbody>';
+  sch.forEach((s, i) => {
+    const url = basis ? basis + '#e=' + s.code : '#e=' + s.code;
+    h += '<tr><td><b>'+esc(s.vorname+' '+s.nachname)+'</b></td><td>'+esc((DEMO_SCHUELER[i]||[])[4]||'')+'</td>'+
+      '<td><a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(s.code)+'</a></td></tr>';
+  });
+  h += '</tbody></table></div>';
+  fenster('Einsichtslinks des Demo-Jahres', h, '<button class="btn sek" onclick="schliesse()">Schließen</button>', 700);
 }
 </script>
 
