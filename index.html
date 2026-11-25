@@ -186,9 +186,19 @@ textarea{min-height:76px;resize:vertical}
   color:var(--text-hell);padding:5px 0;font-weight:600}
 .mtag{background:#fff;min-height:48px;padding:3px 3px 4px;position:relative;display:flex;flex-direction:column;gap:2px}
 .mtag.leer{background:#FBFCFD}
-.mtag.we{background:#FAFBFC}
-.mtag.ferien{background:repeating-linear-gradient(135deg,#F2F5F8,#F2F5F8 5px,#EAEFF4 5px,#EAEFF4 10px)}
-.mtag.feiertag{background:#FDF6E3}
+.mtag.we{background:#F1F3F6}
+.mtag.ferien{background:#FFE6BF}
+.mtag.ferien .mnum{color:#8A5300}
+.mtag.feiertag{background:#F9D3D3}
+.mtag.feiertag .mnum{color:#9B1C1C}
+.mferien{font-size:8.5px;font-weight:700;line-height:1.15;color:#8A5300;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 2px}
+.mtag.feiertag .mferien{color:#9B1C1C}
+.legpunkt i.f-ferien{background:#FFE6BF;border-color:#F0B356}
+.legpunkt i.f-feiertag{background:#F9D3D3;border-color:#E08B8B}
+.legpunkt i.f-we{background:#F1F3F6}
+.legpunkt i.f-heute{background:#fff;box-shadow:inset 0 0 0 2px var(--blau)}
+table.liste tr.ferienzeile td{background:#FFF1DA;color:#7A4A00;font-weight:600}
+table.liste tr.feiertagzeile td{background:#FCE4E4;color:#8E1B1B;font-weight:600}
 .mtag.heute{box-shadow:inset 0 0 0 2px var(--blau)}
 .mnum{font-size:10.5px;color:var(--text-hell);line-height:1;padding:1px 2px}
 .mtag.hat .mnum{color:var(--text);font-weight:700}
@@ -206,6 +216,8 @@ textarea{min-height:76px;resize:vertical}
 .legpunkt i.punkt-frei{background:var(--gruen);border-radius:50%}
 .ferienliste{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .ferienliste div{background:var(--grau-bg);border-radius:var(--radius-klein);padding:9px 12px;font-size:13px}
+.ferienliste div.fe{background:#FFF1DA;border-left:4px solid #F0A43A}
+.ferienliste div.ft{background:#FCE4E4;border-left:4px solid #D9534F}
 .ferienliste div b{display:block;color:var(--blau-dunkel)}
 .ferienliste div span{color:var(--text-hell);font-size:12.5px}
 table.liste tr.istheute td{background:var(--blau-hell)}
@@ -219,7 +231,147 @@ table.liste tr.istheute td{background:var(--blau-hell)}
   .karte{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
   .druckbar{display:block}
 }
+/* ---------- Arbeitsblätter: Felder, SPIKE-Blöcke, Hilfen ---------- */
+.feld{margin-top:22px}
+.feldkopf{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+.feldkopf h3{margin:2px 0 0;font-size:15px}
+.nr{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--blau);color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.nr.plus{background:#8FA3B5}
+.feldkoerper{padding-left:34px}
+.auftrag{display:flex;gap:14px;align-items:flex-start;background:linear-gradient(135deg,#E6EEF7,#F3F7FB);border:1px solid #CFDDEB;border-radius:var(--radius);padding:14px 16px;margin-top:6px}
+.auftrag .sym{flex-shrink:0;width:40px;height:40px;border-radius:10px;background:var(--blau);color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center}
+.auftrag b{display:block;color:var(--blau-dunkel);margin-bottom:2px}
+.auftrag p{margin:0;font-size:14px}
+.prog{border:1px solid var(--grau-linie);border-radius:var(--radius);overflow:hidden;background:#fff}
+.progkopf{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--grau-linie);background:#FAFBFC}
+.progkopf .datei{font-family:Consolas,"Courier New",monospace;font-size:13px;background:#fff;border:1px solid var(--grau-linie);border-radius:5px;padding:2px 8px;color:var(--blau-dunkel)}
+.schubladen{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text-hell)}
+.schubladen span{display:inline-flex;align-items:center;gap:5px}
+.schubladen i{width:12px;height:12px;border-radius:3px;background:var(--bf);display:inline-block}
+.stapel{padding:26px 18px 26px 48px;overflow-x:auto;background-color:#F7F9FB;background-image:radial-gradient(#D9E0E8 1px,transparent 1px);background-size:18px 18px}
+.blkzeile{display:flex;align-items:center;gap:12px}
+.g-ereignis {--bf:#FFC21A; --bt:#3A2E00; --bd:rgba(0,0,0,.12)}
+.g-bewegung {--bf:#E94AB8; --bt:#fff;    --bd:rgba(0,0,0,.18)}
+.g-motor    {--bf:#1E8FE8; --bt:#fff;    --bd:rgba(0,0,0,.18)}
+.g-steuerung{--bf:#FFA31A; --bt:#3A2300; --bd:rgba(0,0,0,.12)}
+.g-sensor   {--bf:#38B6E0; --bt:#06303D; --bd:rgba(0,0,0,.12)}
+.g-licht    {--bf:#9B59D0; --bt:#fff;    --bd:rgba(0,0,0,.18)}
+.blk{position:relative;display:inline-flex;align-items:center;flex-wrap:wrap;gap:7px;min-height:46px;padding:9px 16px 9px 14px;background:var(--bf);color:var(--bt);font-weight:700;font-size:15px;border-radius:6px;box-shadow:inset 0 -3px 0 var(--bd);user-select:none;-webkit-user-select:none}
+.blk::after{content:"";position:absolute;left:20px;bottom:-7px;width:30px;height:8px;background:var(--bf);border-radius:0 0 8px 8px;z-index:2}
+.blk.letzter::after{display:none}
+.blk.hut{margin-top:18px;padding-top:12px}
+.blk.hut::before{content:"";position:absolute;left:0;top:-15px;width:100px;height:22px;background:var(--bf);border-radius:50px 50px 0 0 / 22px 22px 0 0}
+.blk .play{font-size:12px;opacity:.85}
+.bw{background:#fff;color:#2b2b2b;border-radius:999px;padding:2px 12px;min-width:32px;text-align:center;font-weight:700;box-shadow:0 0 0 1px rgba(0,0,0,.10)}
+.bd{background:var(--bd);border-radius:999px;padding:2px 10px;display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.bd i{font-style:normal;font-size:10px;opacity:.8}
+.bt{white-space:nowrap}
+.bb{display:inline-flex;align-items:center;gap:6px;background:var(--bf);color:var(--bt);padding:3px 14px;font-weight:700;
+    clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,10px 100%,0 50%);box-shadow:inset 0 -2px 0 var(--bd)}
+.bb .bd{background:rgba(0,0,0,.12)}
+.cblk{display:inline-flex;flex-direction:column;align-items:flex-start}
+.cblk>.blkzeile>.blk{border-bottom-left-radius:0}
+.cinnen{border-left:20px solid var(--bf);padding:0}
+.cfuss{width:150px;height:22px;background:var(--bf);border-radius:0 6px 6px 6px;box-shadow:inset 0 -3px 0 var(--bd)}
+.blk .haken{display:none;position:absolute;left:-34px;top:50%;margin-top:-12px;width:24px;height:24px;border-radius:50%;background:var(--gruen);color:#fff;font-size:13px;align-items:center;justify-content:center;box-shadow:0 0 0 3px #F7F9FB}
+.blk.ok .haken{display:flex}
+.stapel.bauen .blk{cursor:pointer;transition:box-shadow var(--weich)}
+.stapel.bauen .blk:hover{box-shadow:inset 0 -3px 0 var(--bd),0 0 0 3px rgba(0,80,152,.35)}
+.stapel.bauen .blk:not(.ok) .haken{display:flex;background:#fff;color:transparent;border:2px dashed #B6C2CE;box-shadow:none}
+.neuhinweis{font-size:12.5px;font-weight:600;color:#9C2B7E;background:#FCE8F6;border:1px solid #F4C3E4;border-radius:20px;padding:3px 11px;white-space:nowrap}
+.progfuss{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--grau-linie);background:#FAFBFC;font-size:13.5px}
+.fortschritt{display:flex;align-items:center;gap:8px;min-width:220px}
+.fortschritt .balken{flex:1;height:8px;border-radius:4px;background:#E3E8EE;overflow:hidden;min-width:90px}
+.fortschritt .balken b{display:block;height:100%;background:var(--gruen);border-radius:4px;transition:width .3s}
+.haekchen{display:inline-flex !important;align-items:center;gap:7px;cursor:pointer;color:var(--text) !important;text-transform:none !important;letter-spacing:0 !important;font-size:13.5px !important;margin:0 !important}
+.haekchen input{width:18px;height:18px;margin:0;accent-color:var(--gruen)}
+.hilfe{margin-top:10px}
+.hilfeknopf{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:13px;font-weight:600;color:#7A5A00;background:#FFF7DE;border:1px solid #F0DC9C;border-radius:20px;padding:5px 13px 5px 6px;cursor:pointer;transition:background var(--weich)}
+.hilfeknopf:hover{background:#FFEFC2}
+.hilfeknopf .fz{width:20px;height:20px;border-radius:50%;background:#E8B400;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px}
+.hilfeschritt{display:flex;gap:10px;align-items:flex-start;background:#FFFBEF;border:1px solid #F3E4B5;border-radius:8px;padding:9px 12px;margin:0 0 8px;font-size:13.5px;animation:aufpoppen .2s ease both}
+.hilfeschritt .st{flex-shrink:0;font-size:11px;font-weight:700;color:#8a6508;background:#FBEBB8;border-radius:10px;padding:1px 7px;margin-top:2px}
+.messtab td input{max-width:92px;text-align:right}
+.messtab .einh{color:var(--text-hell);font-size:12.5px;margin-left:4px}
+.messtab td.spanne{font-weight:700;color:var(--blau-dunkel);white-space:nowrap}
+.messtab td.spanne.leer{color:#B6C2CE;font-weight:400}
+.kacheln{display:flex;gap:8px;flex-wrap:wrap}
+.kachel{display:flex !important;align-items:center;gap:8px;border:1px solid var(--grau-linie);border-radius:8px;padding:9px 14px;cursor:pointer;font-size:14px !important;background:#fff;transition:all var(--weich);text-transform:none !important;letter-spacing:0 !important;color:var(--text) !important;margin:0 !important}
+.kachel:hover{border-color:var(--blau);background:var(--blau-hell)}
+.kachel input{width:auto;margin:0;accent-color:var(--blau)}
+.kachel.an{border-color:var(--blau);background:var(--blau-hell);color:var(--blau-dunkel) !important;font-weight:600}
+.checkliste label{display:flex;gap:9px;align-items:flex-start;font-size:14px;margin-bottom:7px;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--text)}
+.checkliste input{width:18px;height:18px;margin:2px 0 0;flex-shrink:0;accent-color:var(--gruen)}
+details.zusatz{margin-top:24px;border:1px dashed #C9D5E2;border-radius:var(--radius);background:#FBFCFD}
+details.zusatz>summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;align-items:center;gap:10px;font-weight:600;color:var(--blau-dunkel)}
+details.zusatz>summary::-webkit-details-marker{display:none}
+details.zusatz>summary::after{content:"▸";margin-left:auto;color:var(--text-hell);transition:transform var(--weich)}
+details.zusatz[open]>summary::after{transform:rotate(90deg)}
+details.zusatz .zinhalt{padding:0 16px 16px}
+details.zusatz .feld:first-child{margin-top:4px}
+.antwort{white-space:pre-wrap;margin:0;background:var(--grau-bg);border-radius:6px;padding:8px 11px;font-size:14px}
+.antwort.leer{color:var(--text-hell);background:none;padding:0}
+/* ---------- Team, Profil, Ansicht als Lehrkraft ---------- */
+.namen button{position:relative}
+.namen button.dabei{background:#EDF5E5;border-color:var(--gruen)}
+.namen button.dabei::after{content:"✓ dabei";position:absolute;top:6px;right:8px;font-size:11px;font-weight:700;color:#3C6B1E}
+.namen .bild,.profilbild{display:block;width:58px;height:58px;border-radius:50%;object-fit:cover;margin:0 auto 8px;border:2px solid #fff;box-shadow:0 0 0 1px var(--grau-linie)}
+.namen .bild.leer{background:var(--blau-hell);color:var(--blau);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}
+.teamleiste{position:sticky;bottom:-32px;margin:22px -32px -32px;padding:16px 24px;background:#F7F9FB;border-top:1px solid var(--grau-linie);display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+.teamleiste .chip{background:#fff;border:1px solid var(--grau-linie);border-radius:20px;padding:5px 12px;font-size:14px;font-weight:600;color:var(--blau-dunkel)}
+.mini{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;border:1px solid var(--grau-linie)}
+.mini.leer{display:inline-flex;align-items:center;justify-content:center;background:var(--blau-hell);color:var(--blau);font-size:12px;font-weight:700}
+.ansichtwahl{display:flex;align-items:center;gap:6px}
+.ansichtwahl select{width:auto;min-width:200px}
+.ansichtbanner{background:#FFF1C9;border:1px solid #EAC86A;border-radius:var(--radius);padding:10px 14px;margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:13.5px}
+.profilkarte{max-width:620px;text-align:left}
+.profilkarte h2{text-align:center}
+/* ---------- Elternbrief ---------- */
+#druckbox{display:none}
+.briefvorschau{background:#E4E9EE;margin:-20px;padding:18px;max-height:72vh;overflow:auto}
+.briefvorschau .brief{background:#fff;box-shadow:0 4px 18px rgba(10,40,70,.18);margin:0 auto 18px}
+.brief{width:210mm;min-height:297mm;padding:14mm 18mm 12mm;box-sizing:border-box;font-family:"Open Sans","Segoe UI",Arial,sans-serif;color:#1E2A33;font-size:9.4pt;line-height:1.36}
+.brief .bkopf{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #005098;padding-bottom:2.5mm;margin-bottom:4mm}
+.brief .bkopf img{height:10mm;display:block}
+.brief .bkopf .abs{text-align:right;font-size:7.8pt;color:#5B6B78;line-height:1.3}
+.brief h1{font-size:14pt;margin:0 0 3mm;color:#0A2C4F;font-weight:700}
+.brief .person{display:grid;grid-template-columns:2.2fr 1fr 1.2fr;gap:5mm;margin:0 0 4mm}
+.brief .person div{border-bottom:1px solid #445;min-height:8mm;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:.8mm}
+.brief .person small{font-size:7pt;color:#5B6B78;text-transform:uppercase;letter-spacing:.4pt}
+.brief .person b{font-size:10.5pt}
+.brief p{margin:0 0 2mm}
+.brief .abschnitt{border:1px solid #CFD8E1;border-radius:2mm;padding:2.6mm 4mm 3mm;margin-bottom:3mm;break-inside:avoid}
+.brief h2{font-size:10.4pt;margin:0 0 1.4mm;color:#005098;display:flex;align-items:center;gap:2mm;font-weight:700}
+.brief h2 .n{width:5mm;height:5mm;border-radius:50%;background:#005098;color:#fff;font-size:8pt;display:inline-flex;align-items:center;justify-content:center}
+.brief .wahl{display:flex;flex-direction:column;gap:1.5mm;margin:1.8mm 0 0}
+.brief .wahl.nebeneinander{flex-direction:row;gap:9mm}
+.brief .kk{display:inline-block;width:3.8mm;height:3.8mm;border:1.2px solid #1E2A33;border-radius:.6mm;margin-right:2mm;vertical-align:-.8mm;flex-shrink:0}
+.brief .wahl label{display:flex;align-items:flex-start;gap:0;font-size:9.4pt;text-transform:none;letter-spacing:0;color:#1E2A33;margin:0}
+.brief .wahl label b{font-weight:600}
+.brief .hinw{font-size:8pt;color:#44535F;margin:1.6mm 0 0}
+.brief table.nk{width:100%;border-collapse:collapse;margin:1.5mm 0 1mm;font-size:8.2pt}
+.brief table.nk th{text-align:left;font-weight:600;color:#5B6B78;font-size:7.4pt;text-transform:uppercase;letter-spacing:.3pt;padding:0 2mm 1mm 0}
+.brief table.nk td{border-bottom:1px solid #445;height:8.5mm;padding:0 3mm 0 0;vertical-align:bottom}
+.brief table.nk td:first-child,.brief table.nk th:first-child{width:6mm;color:#5B6B78;font-weight:600}
+.brief table.nk th:nth-child(2){width:40%} .brief table.nk th:nth-child(3){width:24%}
+.brief .rechtliches{font-size:7.7pt;color:#44535F;line-height:1.33;margin-top:1mm}
+.brief .rechtliches p{margin:0 0 1.2mm}
+.brief .unterschrift{display:grid;grid-template-columns:1fr 1.35fr 1.35fr;gap:7mm;margin-top:11mm}
+.brief .unterschrift div{border-top:1px solid #333;padding-top:1mm;font-size:7.4pt;color:#5B6B78}
+.brief .rueckgabe{margin-top:4mm;font-size:8.2pt;font-weight:600;color:#0A2C4F;background:#E6EEF7;border-radius:1.5mm;padding:2mm 3mm}
+@media print{
+  @page{size:A4;margin:0}
+  body.druckmodus{background:#fff !important}
+  body.druckmodus > *:not(#druckbox){display:none !important}
+  body.druckmodus #druckbox{display:block !important}
+  #druckbox .brief{height:297mm;min-height:0;overflow:hidden;page-break-after:always;break-after:page}
+  #druckbox .brief:last-child{page-break-after:auto;break-after:auto}
+  #druckbox .notfalldruck{padding:15mm}
+}
 @media(max-width:720px){
+  .feldkoerper{padding-left:0}
+  .stapel{padding-left:42px}
+  .blk{font-size:14px}
   main{padding:12px 12px 32px}
   nav{width:100%;margin-left:0;overflow:auto}
   .firmenlogo{height:30px}
@@ -258,6 +410,9 @@ table.liste tr.istheute td{background:var(--blau-hell)}
     <div class="logo"><div class="txt"><strong>Technik-AG</strong><span>Berufsorientierung</span></div></div>
     <div class="gruppenwahl" id="gruppenWahl" style="display:none">
       <select id="gruppeSel" onchange="gruppeSetzen(this.value)"></select>
+    </div>
+    <div class="ansichtwahl" id="ansichtWahl" style="display:none" title="Die App so sehen, wie eine Lehrkraft sie sieht">
+      <select id="ansichtSel" onchange="alsLehrkraftAnsehen(this.value)"></select>
     </div>
     <nav id="navi"></nav>
   </header>
@@ -1584,8 +1739,18 @@ const EINHEIT_VORLAGE = [
 ];
 
 /* ---------- Arbeitsblätter (fest eingebaut) ----------
-   typ: kurz | text | zahl | wahl | check | tab | foto
-   tab: zeilen[] und spalten[]                                        */
+   typ: kurz | text | zahl | wahl | check | tab | foto | info | prog
+   tab:  zeilen[] und spalten[]; spanne:true rechnet die letzte Spalte (größter − kleinster Wert), einheit:'cm'
+   info: Hinweiskasten mit inhalt
+   prog: SPIKE-Programm zum Nachbauen – datei, bloecke[]
+         Block: { g:Gruppe, t:[Text | {w:Wert} | {d:Auswahl} | {b:[…Sensorbaustein…]} | {play:1}], hut, neu, c:[innere Blöcke] }
+         Gruppen: ereignis · bewegung · motor · steuerung · sensor · licht
+   Jedes Feld: hilfe:[…] gestufte Hilfen (Anzahl genutzter Hilfen wird gespeichert)
+               zusatz:true landet im einklappbaren Teil „Profi-Aufgabe“                          */
+const BLOCKGRUPPEN = { ereignis:'Ereignisse', bewegung:'Bewegung', motor:'Motoren', steuerung:'Steuerung', sensor:'Sensoren', licht:'Licht' };
+const B_START = { g:'ereignis', hut:true, t:[{play:1},'Wenn Programm startet'] };
+const B_MOTOREN = { g:'bewegung', t:['Setze Bewegungsmotoren auf',{d:'A+B'}] };
+const B_TEMPO = w => ({ g:'bewegung', t:['Setze Bewegungsgeschwindigkeit auf',{w:String(w)},'%'] });
 const BLAETTER = {
   '1': { titel:'Das ist unser Baukasten', felder:[
     { id:'teile', typ:'tab', text:'Bauteile-Rallye', hinweis:'Sucht die Teile in eurer Kiste. Zählt sie und schreibt auf, wozu sie da sind.',
@@ -1596,22 +1761,98 @@ const BLAETTER = {
     { id:'foto', typ:'foto', text:'Foto von eurem Fahrzeug' },
     { id:'rueck', typ:'text', text:'Das war heute gut – und das war schwierig' } ]},
 
-  '2': { titel:'Erste Programmierung', felder:[
-    { id:'meter', typ:'tab', text:'Die 1-Meter-Fahrt', hinweis:'Messt nach jeder Fahrt, wo das Fahrzeug wirklich steht.',
-      zeilen:['Versuch 1','Versuch 2','Versuch 3'], spalten:['Wert im Block','Ist in cm','Abweichung'] },
-    { id:'aender', typ:'text', text:'Wie habt ihr den Wert verändert, damit es genauer wurde?' },
-    { id:'quadrat', typ:'kurz', text:'Quadrat: Wie weit ist das Fahrzeug am Ende vom Start entfernt? (cm)' },
-    { id:'warum', typ:'text', text:'Warum kommt kein Fahrzeug exakt am Ziel an? Zwei Gründe.' } ]},
+  '2': { titel:'Zwei Programme im Vergleich', felder:[
+    { id:'auftrag', typ:'info', text:'Euer Auftrag heute',
+      inhalt:'Ihr baut zwei Programme, die dasselbe tun sollen: genau einen Meter geradeaus fahren. Das eine zählt die Zeit, das andere die Umdrehungen der Räder. Am Ende messt ihr nach, welches zuverlässiger ist.' },
+    { id:'progA', typ:'prog', text:'Programm A – nach Zeit', datei:'A-Zeit',
+      hinweis:'Baut die Blöcke genau so nach. Tippt jeden Block an, wenn er bei euch eingebaut ist.',
+      bloecke:[ B_START, B_MOTOREN, B_TEMPO(40),
+        { g:'bewegung', t:['Bewege',{d:'↑'},'für',{w:'3'},{d:'Sekunden'}] } ],
+      hilfe:[ 'Der gelbe Block „Wenn Programm startet“ liegt in der Schublade <b>Ereignisse</b>. Er steht immer ganz oben.',
+              'Die rosa Blöcke findet ihr in der Schublade <b>Bewegung</b>. Zieht sie unter den gelben Block, bis sie einrasten.',
+              'Fährt das Fahrzeug im Kreis oder gar nicht? Schaut auf dem Hub nach, in welchen Ports (A bis F) die Räder stecken, und stellt genau diese im zweiten Block ein.' ] },
+    { id:'progB', typ:'prog', text:'Programm B – nach Umdrehungen', datei:'B-Umdrehungen',
+      hinweis:'Gleicher Aufbau wie A – nur der letzte Block ist anders.',
+      bloecke:[ B_START, B_MOTOREN, B_TEMPO(40),
+        { g:'bewegung', t:['Bewege',{d:'↑'},'für',{w:'5.7'},{d:'Umdrehungen'}], neu:'anders als bei A' } ],
+      hilfe:[ 'Legt ein neues Programm mit dem Namen <b>B-Umdrehungen</b> an und baut die ersten drei Blöcke wie bei A.',
+              'Tippt im letzten Block auf das Wort „Sekunden“. Es klappt eine Liste auf – dort wählt ihr <b>Umdrehungen</b>.',
+              'Achtung beim Komma: In der App schreibt man <b>5.7</b> mit Punkt, nicht 5,7.' ] },
+    { id:'ablauf', typ:'check', text:'So messt ihr', hinweis:'Hakt ab, was erledigt ist.',
+      opt:['Startlinie aufkleben und von dort genau 100 cm abmessen, Ziel markieren',
+           'Fahrzeug mit den Vorderrädern an die Startlinie stellen',
+           'Jedes Programm dreimal laufen lassen und jedes Mal messen, wo die Vorderräder stehen',
+           'Zwischen den Läufen nichts ändern – nicht am Programm, nicht am Fahrzeug, nicht am Boden'] },
+    { id:'mess', typ:'tab', text:'Messprotokoll', hinweis:'Tragt ein, wie weit das Fahrzeug wirklich gefahren ist.',
+      zeilen:['Programm A – Zeit','Programm B – Umdrehungen'], spalten:['Lauf 1','Lauf 2','Lauf 3','Größter Unterschied'],
+      einheit:'cm', spanne:true,
+      hilfe:[ 'Den größten Unterschied rechnet die App selbst aus: größter Wert minus kleinster Wert. Beispiel: 94, 101 und 97 cm → 101 − 94 = 7 cm.' ] },
+    { id:'naeher', typ:'wahl', text:'Welches Programm kam näher an die 100 cm?',
+      opt:['Programm A – Zeit','Programm B – Umdrehungen','Beide gleich'] },
+    { id:'dichter', typ:'wahl', text:'Bei welchem Programm lagen die drei Läufe dichter beieinander?',
+      opt:['Programm A – Zeit','Programm B – Umdrehungen','Beide gleich'],
+      hilfe:[ 'Schaut in die letzte Spalte eurer Tabelle: Wo ist der Unterschied kleiner?' ] },
+    { id:'warum', typ:'text', text:'Warum ist das so? Schreibt eure Erklärung auf.',
+      hilfe:[ 'Überlegt: Was „weiß“ der Hub bei Programm A – und was bei Programm B?',
+              'Bei A schaut der Hub nur auf die Uhr. Was passiert, wenn der Akku schwächer ist oder der Boden rutschiger?',
+              'Ihr könnt so anfangen: „Programm B ist zuverlässiger, weil der Hub …“' ] },
+    { id:'wettbewerb', typ:'text', text:'Welches Programm würdet ihr für einen Wettbewerb nehmen? Begründet kurz.' },
+    { id:'halb', typ:'kurz', text:'Wie viele Umdrehungen braucht ihr für genau 50 cm?',
+      hilfe:[ 'Für 100 cm stehen in Programm B 5.7 Umdrehungen.',
+              '50 cm sind die Hälfte von 100 cm – also braucht ihr auch die Hälfte der Umdrehungen.',
+              'Rechnet 5.7 ÷ 2, tragt das Ergebnis in den letzten Block ein und probiert es aus.' ] },
+    { id:'quadrat', typ:'prog', zusatz:true, text:'Fahrt ein Quadrat mit 50 cm Seitenlänge', datei:'C-Quadrat',
+      hinweis:'Kommt das Fahrzeug nach vier Seiten wieder am Start an?',
+      bloecke:[ B_START, B_MOTOREN, B_TEMPO(40),
+        { g:'steuerung', t:['Wiederhole',{w:'4'},'mal'], c:[
+          { g:'bewegung', t:['Bewege',{d:'↑'},'für',{w:'2.8'},{d:'Umdrehungen'}] },
+          { g:'bewegung', t:['Bewege',{d:'↻'},'für',{w:'90'},{d:'Grad'}] } ] } ],
+      hilfe:[ 'Der orange Block liegt in der Schublade <b>Steuerung</b>.',
+              'Alles, was im Wiederhole-Block steckt, läuft viermal hintereinander.',
+              'Dreht das Fahrzeug zu weit oder zu wenig? Ändert die 90 Grad in kleinen Schritten, zum Beispiel auf 85 oder 95.' ] },
+    { id:'quadratAbst', typ:'kurz', zusatz:true, text:'Wie weit steht das Fahrzeug am Ende vom Start entfernt? (cm)' } ]},
 
   '3': { titel:'Sensorik', felder:[
+    { id:'auftrag3', typ:'info', text:'Euer Auftrag heute',
+      inhalt:'Euer Fahrzeug soll selbst merken, wenn etwas im Weg ist, und rechtzeitig anhalten. Dafür baut ihr den Abstandssensor vorne an.' },
+    { id:'progStopp', typ:'prog', text:'Programm: Stopp vor dem Hindernis', datei:'Sensor-Stopp',
+      hinweis:'Steckt den Abstandssensor in Port C. Tippt jeden Block an, wenn er eingebaut ist.',
+      bloecke:[ B_START, B_MOTOREN, B_TEMPO(40),
+        { g:'bewegung', t:['Starte Bewegung',{d:'↑'}] },
+        { g:'steuerung', t:['Warte bis',{b:[{d:'C'},'ist näher als',{w:'15'},{d:'cm'}]}] },
+        { g:'bewegung', t:['Stoppe Bewegung'] } ],
+      hilfe:[ 'Der orange Block „Warte bis“ liegt in der Schublade <b>Steuerung</b>. Den hellblauen Sensor-Baustein findet ihr unter <b>Sensoren</b> – zieht ihn in die Lücke des Warte-Blocks.',
+              'Steckt euer Sensor nicht in Port C? Tippt auf den Buchstaben im hellblauen Baustein und wählt euren Port.',
+              'Das Fahrzeug fährt einfach weiter? Prüft, ob der Sensor nach vorne zeigt und nicht auf den Boden.' ] },
     { id:'sens', typ:'tab', text:'Sensoren erkunden',
       zeilen:['Abstandssensor','Farbsensor','Neigungssensor (im Hub)'], spalten:['Was verändert den Wert?','Kleinster Wert','Größter Wert'] },
     { id:'stopp', typ:'kurz', text:'Bei welchem Abstand stoppt euer Fahrzeug sicher? (cm)' },
     { id:'erfolg', typ:'check', text:'Das läuft',
       opt:['Fahrzeug stoppt vor dem Hindernis','Fahrzeug weicht aus','Fahrzeug hält auf der Linie','Zusatz: Fahrzeug folgt der Linie'] },
-    { id:'werk', typ:'text', text:'Wo im Industriepark könnten solche Sensoren eingebaut sein? Zwei Beispiele.' } ]},
+    { id:'werk', typ:'text', text:'Wo im Industriepark könnten solche Sensoren eingebaut sein? Zwei Beispiele.' },
+    { id:'progAusw', typ:'prog', zusatz:true, text:'Ausweichen statt nur anhalten', datei:'Sensor-Ausweichen',
+      hinweis:'Hängt diese Blöcke unten an euer Programm an. Fährt das Fahrzeug um das Hindernis herum?',
+      bloecke:[
+        { g:'bewegung', t:['Bewege',{d:'↓'},'für',{w:'1'},{d:'Umdrehungen'}] },
+        { g:'bewegung', t:['Bewege',{d:'↻'},'für',{w:'90'},{d:'Grad'}] },
+        { g:'bewegung', t:['Bewege',{d:'↑'},'für',{w:'2'},{d:'Umdrehungen'}] } ],
+      hilfe:[ 'Blöcke lassen sich einfach unter „Stoppe Bewegung“ anhängen.',
+              'Dreht das Fahrzeug zu wenig? Erhöht die Grad in kleinen Schritten.' ] } ]},
 
   '4': { titel:'Getriebe und Übersetzung', felder:[
+    { id:'auftrag4', typ:'info', text:'Euer Auftrag heute',
+      inhalt:'Ihr vergleicht zwei Getriebe: eins macht schnell, eins macht stark. Damit der Vergleich fair ist, lasst ihr den Motor mit einem kurzen Programm immer genau gleich lange laufen.' },
+    { id:'progGetr', typ:'prog', text:'Testprogramm für das Getriebe', datei:'Getriebe-Test',
+      hinweis:'Der Motor am Getriebe steckt in Port A. Zählt, wie oft sich das Abtriebsrad in 5 Sekunden dreht.',
+      bloecke:[ B_START,
+        { g:'motor', t:['Setze Geschwindigkeit von',{d:'A'},'auf',{w:'50'},'%'] },
+        { g:'motor', t:['Starte Motor',{d:'A'},{d:'↻'}] },
+        { g:'steuerung', t:['Warte',{w:'5'},'Sekunden'] },
+        { g:'motor', t:['Stoppe Motor',{d:'A'}] } ],
+      hilfe:[ 'Die blauen Blöcke liegen in der Schublade <b>Motoren</b> – nicht bei den rosa Fahr-Blöcken.',
+              'Klebt ein Stück Klebeband an das Abtriebsrad, dann lassen sich die Umdrehungen leichter zählen.' ] },
+    { id:'umdr', typ:'tab', text:'Umdrehungen des Abtriebsrads in 5 Sekunden',
+      zeilen:['Variante A (schnell)','Variante B (stark)'], spalten:['Lauf 1','Lauf 2'] },
     { id:'zaehne', typ:'tab', text:'Zähne zählen',
       zeilen:['Variante A (schnell)','Variante B (stark)'], spalten:['Antriebsrad (Zähne)','Abtriebsrad (Zähne)','Verhältnis'] },
     { id:'versuch', typ:'tab', text:'Der Versuch', hinweis:'Gleiches Programm, gleiche Geschwindigkeit, gleicher Untergrund.',
@@ -1620,6 +1861,17 @@ const BLAETTER = {
     { id:'alltag', typ:'text', text:'Wo findet ihr Übersetzungen im Alltag? Drei Beispiele.' } ]},
 
   '5': { titel:'Greifer oder Hebearm bauen', felder:[
+    { id:'progGreif', typ:'prog', text:'Programm für den Greifer', datei:'Greifer',
+      hinweis:'Der Greifer-Motor steckt in Port C. Fangt mit wenig Grad an und tastet euch heran.',
+      bloecke:[ B_START,
+        { g:'motor', t:['Setze Geschwindigkeit von',{d:'C'},'auf',{w:'30'},'%'] },
+        { g:'motor', t:[{d:'C'},{d:'↻'},'laufen für',{w:'90'},{d:'Grad'}] },
+        { g:'steuerung', t:['Warte',{w:'1'},'Sekunden'] },
+        { g:'motor', t:[{d:'C'},{d:'↺'},'laufen für',{w:'90'},{d:'Grad'}] } ],
+      hilfe:[ 'Langsam ist hier besser: Bei 30 % greift der Motor sanft und drückt nichts kaputt.',
+              'Der Greifer schließt nicht ganz? Erhöht die Grad in 10er-Schritten.',
+              'Brummt der Motor und bewegt sich nicht mehr, steht der Greifer am Anschlag – dann sind es zu viele Grad.' ] },
+    { id:'grad', typ:'kurz', text:'So viele Grad braucht unser Greifer zum Schließen' },
     { id:'mech', typ:'wahl', text:'Welchen Mechanismus nutzt ihr?',
       opt:['Zahnstange (drehen → schieben)','Hebel / Arm (drehen → heben)','Kurbel (drehen → hin und her)','Etwas anderes'] },
     { id:'foto', typ:'foto', text:'Foto oder Skizze eures Modells' },
@@ -1628,6 +1880,18 @@ const BLAETTER = {
     { id:'besch', typ:'text', text:'So funktioniert unser Modell – das war das größte Problem – so haben wir es gelöst' } ]},
 
   '6': { titel:'Automatisierter Ablauf', felder:[
+    { id:'progAblauf', typ:'prog', text:'Beispiel für einen automatischen Ablauf', datei:'Ablauf',
+      hinweis:'So kann ein Ablauf aussehen: hinfahren, greifen, umdrehen, abliefern. Passt Ports und Werte an euer Modell an.',
+      bloecke:[ B_START, B_MOTOREN, B_TEMPO(40),
+        { g:'bewegung', t:['Starte Bewegung',{d:'↑'}] },
+        { g:'steuerung', t:['Warte bis',{b:[{d:'D'},'ist näher als',{w:'8'},{d:'cm'}]}] },
+        { g:'bewegung', t:['Stoppe Bewegung'] },
+        { g:'motor', t:[{d:'C'},{d:'↻'},'laufen für',{w:'90'},{d:'Grad'}] },
+        { g:'bewegung', t:['Bewege',{d:'↻'},'für',{w:'180'},{d:'Grad'}] },
+        { g:'bewegung', t:['Bewege',{d:'↑'},'für',{w:'2'},{d:'Umdrehungen'}] },
+        { g:'motor', t:[{d:'C'},{d:'↺'},'laufen für',{w:'90'},{d:'Grad'}] } ],
+      hilfe:[ 'Baut und testet Schritt für Schritt: erst bis zum Stopp, dann das Greifen, dann den Rückweg.',
+              'Ein Schritt tut nichts? Geht die Störungs-Checkliste unten durch – meist ist es Port oder Kabel.' ] },
     { id:'plan', typ:'tab', text:'Unser Ablaufplan',
       zeilen:['Schritt 1','Schritt 2','Schritt 3','Schritt 4','Schritt 5'], spalten:['Was passiert?','Welcher Motor / Sensor?'] },
     { id:'stoer', typ:'check', text:'Störungs-Checkliste – das haben wir geprüft',
@@ -1679,7 +1943,8 @@ const BLAETTER = {
 };
 
 /* ---------- Zustand ---------- */
-const LEER = () => ({ benutzer:{}, gruppen:{}, schueler:{}, einheiten:{}, anw:{}, bew:{}, antw:{}, fotos:{}, blaetter:{}, einsicht:{}, einst:{} });
+const LEER = () => ({ benutzer:{}, gruppen:{}, schueler:{}, einheiten:{}, anw:{}, bew:{}, antw:{}, fotos:{}, blaetter:{}, einsicht:{}, einst:{},
+  notfall:{}, profilstatus:{} });
 let D = LEER();
 let cloudAktiv = false, db = null, fbAuth = null, angemeldet = null;
 let elternFotos = {};   // Fotos, die für die Eltern-Einsicht nachgeladen wurden
@@ -1687,6 +1952,8 @@ let rolle = 'keine', meinName = '', meineMail = 'lokal';
 let aktAns = 'uebersicht', aktGruppe = '', geladen = false;
 let tabletKonto = false, tabletSchueler = null, standbyAktiv = false, standbyTimer = null;
 let elternModus = false, elternCode = '', elternDaten = null;
+let tabletTeam = [];                       // Schüler, die sich am Tablet als Team angemeldet haben
+let dozentStand = null, vorschauLk = null; // Dozent sieht die App vorübergehend als Lehrkraft
 
 /* ---------- Kleine Helfer ---------- */
 const el = id => document.getElementById(id);
@@ -1698,6 +1965,10 @@ function toast(t){ const d = document.createElement('div'); d.className = 'toast
 function fehler(e){ console.error(e); toast('Fehler: ' + (e && e.message ? e.message : e)); }
 function datumDe(s){ if(!s) return '–'; const t = String(s).split('-'); return t.length===3 ? t[2]+'.'+t[1]+'.'+t[0] : s; }
 function heute(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+const namenVon = sid => { const s = D.schueler[sid]; return s ? s.vorname + ' ' + s.nachname : '?'; };
+const profilUrl = sid => ((D.fotos['profil_'+sid] || {}).d || '');
+const miniBild = sid => { const u = profilUrl(sid), s = D.schueler[sid] || {};
+  return u ? '<img class="mini" src="'+esc(u)+'" alt="">' : '<span class="mini leer">'+esc((s.vorname||'?').charAt(0))+'</span>'; };
 const ZEICHEN = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function neuerCode(n){ const z = new Uint32Array(n||8); crypto.getRandomValues(z); return Array.from(z, x => ZEICHEN[x % ZEICHEN.length]).join(''); }
 
@@ -1709,7 +1980,8 @@ function blatt(nr){
 }
 const blattGeaendert = nr => !!(D.blaetter[nr] && D.blaetter[nr].felder);
 const FELDTYPEN = [['text','Mehrzeiliges Textfeld'],['kurz','Einzeiliges Textfeld'],['zahl','Zahl'],
-  ['wahl','Eine Antwort auswählen'],['check','Mehrere ankreuzen'],['tab','Tabelle'],['foto','Foto']];
+  ['wahl','Eine Antwort auswählen'],['check','Mehrere ankreuzen'],['tab','Tabelle'],['foto','Foto'],
+  ['info','Hinweiskasten'],['prog','SPIKE-Programm']];
 
 /* Bild eines Fotoeintrags holen – aus den geladenen Daten oder aus der Einsicht */
 function fotoUrl(x){
@@ -1717,6 +1989,171 @@ function fotoUrl(x){
   if(x.url) return x.url;                       // alte Einträge mit direkter Adresse
   const q = D.fotos[x.id] || elternFotos[x.id];
   return q ? q.d : '';
+}
+
+/* =====================================================================
+   Arbeitsblatt zeichnen – ein Renderer für Tablet, Vorschau und Einsicht
+   modus 'form': ausfüllen, Werte liegen in window._blatt.f
+   modus 'lesen': ausgefülltes Blatt anzeigen
+   ===================================================================== */
+function segHtml(s){
+  if(typeof s === 'string') return '<span class="bt">'+esc(s)+'</span>';
+  if(!s) return '';
+  if(s.play) return '<span class="play">▶</span>';
+  if(s.w != null) return '<span class="bw">'+esc(s.w)+'</span>';
+  if(s.d != null) return '<span class="bd">'+esc(s.d)+'<i>▾</i></span>';
+  if(s.b) return '<span class="bb g-sensor">'+s.b.map(segHtml).join('')+'</span>';
+  return '';
+}
+function blockHtml(b, ctx, letzter){
+  const i = ctx.n++;
+  const ok = !!(ctx.v.b && ctx.v.b[i]);
+  const kl = ['blk','g-'+b.g]; if(b.hut) kl.push('hut'); if(ok) kl.push('ok'); if(letzter && !b.c) kl.push('letzter');
+  const klick = ctx.bauen ? ' onclick="blockHaken(\''+ctx.fid+'\','+i+')"' : '';
+  const kopf = '<div class="blkzeile"><div class="'+kl.join(' ')+'"'+klick+' title="Schublade: '+esc(BLOCKGRUPPEN[b.g]||'')+'">'+
+    '<span class="haken">✓</span>'+(b.t||[]).map(segHtml).join('')+'</div>'+
+    (b.neu ? '<span class="neuhinweis">← '+esc(b.neu)+'</span>' : '')+'</div>';
+  if(!b.c) return kopf;
+  return '<div class="cblk g-'+b.g+'">'+kopf+'<div class="cinnen">'+
+    b.c.map((x,j) => blockHtml(x, ctx, j === b.c.length-1)).join('')+'</div><div class="cfuss"></div></div>';
+}
+const zaehleBloecke = l => (l||[]).reduce((n,b) => n + 1 + (b.c ? zaehleBloecke(b.c) : 0), 0);
+function gruppenIn(l, set){ (l||[]).forEach(b => { set.add(b.g); if(b.c) gruppenIn(b.c, set); }); return set; }
+
+function progHtml(fd, v, bauen){
+  v = v || {};
+  const bl = fd.bloecke || [];
+  const ctx = { n:0, v, bauen, fid:fd.id };
+  const gesamt = zaehleBloecke(bl) || 1;
+  const fertig = Object.values(v.b || {}).filter(Boolean).length;
+  const gr = [...gruppenIn(bl, new Set())];
+  let h = '<div class="prog"><div class="progkopf"><span class="sub" style="margin:0">Speichern als</span>'+
+    '<span class="datei">'+esc(fd.datei||'')+'</span>'+
+    '<div class="schubladen">'+gr.map(g => '<span class="g-'+g+'"><i></i>'+esc(BLOCKGRUPPEN[g]||g)+'</span>').join('')+'</div></div>';
+  h += '<div class="stapel'+(bauen?' bauen':'')+'">'+bl.map((b,j) => blockHtml(b, ctx, j === bl.length-1)).join('')+'</div>';
+  h += '<div class="progfuss"><div class="fortschritt"><span>'+fertig+' von '+gesamt+' Blöcken gebaut</span>'+
+    '<div class="balken"><b style="width:'+Math.round(100*fertig/gesamt)+'%"></b></div></div>';
+  if(bauen) h += haekchen(fd.id,'gesp','Gespeichert als „'+esc(fd.datei||'')+'“', v.gesp) + haekchen(fd.id,'test','Testfahrt gemacht', v.test);
+  else h += (v.gesp ? '<span class="marke gruen">gespeichert</span>' : '<span class="marke grau">nicht gespeichert</span>')+
+            (v.test ? '<span class="marke gruen">getestet</span>' : '<span class="marke grau">nicht getestet</span>');
+  return h + '</div></div>';
+}
+const haekchen = (fid, k, txt, an) => '<label class="haekchen"><input type="checkbox" '+(an?'checked':'')+
+  ' onchange="progSetzen(\''+fid+'\',\''+k+'\',this.checked)"> '+txt+'</label>';
+
+/* Gestufte Hilfen – wie viele genutzt wurden, steht in f._hilfe */
+function hilfeHtml(fd, modus, f){
+  if(!fd.hilfe || !fd.hilfe.length) return '';
+  const n = ((f||{})._hilfe || {})[fd.id] || 0;
+  if(modus !== 'form') return n ? '<p class="formhinweis" style="margin-top:8px"><span class="marke gelb">'+n+' von '+fd.hilfe.length+' Hilfen genutzt</span></p>' : '';
+  let h = '<div class="hilfe">';
+  fd.hilfe.slice(0, n).forEach((t, i) => { h += '<div class="hilfeschritt"><span class="st">Hilfe '+(i+1)+'</span><span>'+t+'</span></div>'; });
+  if(n < fd.hilfe.length) h += '<button class="hilfeknopf" onclick="hilfeMehr(\''+fd.id+'\')"><span class="fz">?</span>'+
+    (n === 0 ? 'Hilfe anzeigen' : 'Noch eine Hilfe')+
+    (fd.hilfe.length > 1 ? ' <span style="font-weight:400;opacity:.75">('+(n+1)+' von '+fd.hilfe.length+')</span>' : '')+'</button>';
+  return h + '</div>';
+}
+
+/* Tabellen – mit spanne:true rechnet die letzte Spalte selbst */
+function zahlWert(x){ const n = parseFloat(String(x==null?'':x).replace(',', '.')); return isNaN(n) ? null : n; }
+function spanneText(fd, v, zi){
+  const w = fd.spalten.slice(0,-1).map((_,ci) => zahlWert((v||{})[zi+'_'+ci])).filter(x => x !== null);
+  if(w.length < 2) return '';
+  const d = Math.max(...w) - Math.min(...w);
+  return (Math.round(d*10)/10).toString().replace('.', ',') + (fd.einheit ? ' '+fd.einheit : '');
+}
+function tabHtml(fd, v, bauen){
+  const n = fd.spalten.length, rechnen = !!fd.spanne;
+  let h = '<div style="overflow:auto"><table class="liste'+(fd.einheit?' messtab':'')+'"><thead><tr><th></th>'+
+    fd.spalten.map(c => '<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>';
+  fd.zeilen.forEach((z, zi) => {
+    h += '<tr><td style="min-width:150px"><b>'+esc(z)+'</b></td>';
+    fd.spalten.forEach((c, ci) => {
+      const w = (v||{})[zi+'_'+ci] || '';
+      if(rechnen && ci === n-1){
+        const t = spanneText(fd, v, zi);
+        h += '<td class="spanne'+(t?'':' leer')+'"'+(bauen?' id="sp_'+fd.id+'_'+zi+'"':'')+'>'+(t || (bauen ? 'rechnet sich' : '–'))+'</td>';
+      } else if(bauen){
+        const inp = '<input '+(fd.einheit?'inputmode="decimal" ':'')+'value="'+esc(w)+'" oninput="tabSetzen(\''+fd.id+'\','+zi+','+ci+',this.value)">';
+        h += '<td>'+(fd.einheit ? '<span style="display:inline-flex;align-items:center">'+inp+'<span class="einh">'+esc(fd.einheit)+'</span></span>' : inp)+'</td>';
+      } else h += '<td>'+(w ? esc(w)+(fd.einheit ? ' '+esc(fd.einheit) : '') : '')+'</td>';
+    });
+    h += '</tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+
+function feldInhalt(fd, modus, t){
+  const bauen = modus === 'form';
+  const f = (t && t.f) || {}, v = f[fd.id];
+  switch(fd.typ){
+    case 'prog': return progHtml(fd, v, bauen);
+    case 'tab':  return tabHtml(fd, v, bauen);
+    case 'check':
+      return '<div class="checkliste">'+(fd.opt||[]).map((o,i) => '<label><input type="checkbox" '+((v||{})[i]?'checked':'')+
+        (bauen ? ' onchange="blattCheck(\''+fd.id+'\','+i+',this.checked)"' : ' disabled')+'><span>'+esc(o)+'</span></label>').join('')+'</div>';
+    case 'wahl':
+      return '<div class="kacheln">'+(fd.opt||[]).map((o,i) => '<label class="kachel'+(v===o?' an':'')+'"><input type="radio" name="w_'+fd.id+'" '+
+        (v===o?'checked':'')+(bauen ? ' onchange="wahlSetzen(\''+fd.id+'\','+i+')"' : ' disabled')+'> '+esc(o)+'</label>').join('')+'</div>';
+    case 'foto': {
+      if(bauen){
+        if(window._blatt && window._blatt.vorschau) return '<button class="btn sek" disabled>Foto aufnehmen oder auswählen</button>';
+        return '<div id="fotoBox_'+fd.id+'">'+fotoListe(fd.id)+'</div>'+
+          '<input type="file" accept="image/*" capture="environment" id="fin_'+fd.id+'" style="display:none" onchange="fotoWaehlen(\''+fd.id+'\',this)">'+
+          '<button class="btn sek" onclick="el(\'fin_'+fd.id+'\').click()">Foto aufnehmen oder auswählen</button>';
+      }
+      const fo = ((t && t.fotos) || []).filter(x => x.feld === fd.id);
+      const mit = fo.map(x => ({ x, u: fotoUrl(x) })).filter(o => o.u);
+      return mit.length ? '<div class="fotos">'+mit.map(o => '<figure><img src="'+esc(o.u)+'" alt=""><figcaption>'+esc(o.x.name||'')+'</figcaption></figure>').join('')+'</div>'
+                        : (fo.length ? '<p class="sub">Foto wird geladen …</p>' : '<p class="sub">Kein Foto hochgeladen.</p>');
+    }
+    case 'kurz': case 'zahl':
+      return bauen ? '<input style="max-width:420px" '+(fd.typ==='zahl'?'inputmode="decimal" ':'')+'value="'+esc(v||'')+'" oninput="blattSetzen(\''+fd.id+'\',this.value)">'
+                   : '<p class="antwort'+(v?'':' leer')+'">'+esc(v||'–')+'</p>';
+    default:
+      return bauen ? '<textarea oninput="blattSetzen(\''+fd.id+'\',this.value)">'+esc(v||'')+'</textarea>'
+                   : '<p class="antwort'+(v?'':' leer')+'">'+esc(v||'–')+'</p>';
+  }
+}
+function feldHtml(fd, nr, modus, t){
+  if(fd.typ === 'info') return '<div class="auftrag"><div class="sym">!</div><div><b>'+esc(fd.text)+'</b><p>'+esc(fd.inhalt || fd.hinweis || '')+'</p></div></div>';
+  return '<div class="feld"'+(modus === 'form' ? ' id="feld_'+fd.id+'"' : '')+' data-nr="'+(nr||0)+'"><div class="feldkopf">'+
+    (nr ? '<span class="nr">'+nr+'</span>' : '<span class="nr plus">+</span>')+'<h3>'+esc(fd.text)+'</h3></div><div class="feldkoerper">'+
+    (fd.hinweis ? '<p class="formhinweis">'+esc(fd.hinweis)+'</p>' : '')+
+    feldInhalt(fd, modus, t)+hilfeHtml(fd, modus, t && t.f)+'</div></div>';
+}
+/* Ganzes Blatt: Felder nummeriert, Zusatzfelder im einklappbaren Profi-Teil */
+function blattHtml(bl, modus, t){
+  let h = '', nr = 0; const zusatz = [];
+  (bl.felder || []).forEach(fd => { if(fd.zusatz) zusatz.push(fd); else h += feldHtml(fd, fd.typ === 'info' ? 0 : ++nr, modus, t); });
+  if(zusatz.length){
+    const gefuellt = zusatz.some(fd => { const v = (((t||{}).f)||{})[fd.id]; return v && (typeof v !== 'object' || Object.keys(v).length); });
+    if(modus === 'form' || gefuellt)
+      h += '<details class="zusatz"'+(gefuellt && modus !== 'form' ? ' open' : '')+'><summary><span class="marke blau">Profi-Aufgabe</span> Für Teams, die schon fertig sind</summary>'+
+        '<div class="zinhalt">'+zusatz.map(fd => feldHtml(fd, 0, modus, t)).join('')+'</div></details>';
+  }
+  return h;
+}
+/* Eingaben im Formular */
+const blattT = () => ({ f: window._blatt.f, fotos: window._blatt.fotos });
+function feldNeu(fid){
+  const b = window._blatt; if(!b || !b.bl) return;
+  const fd = b.bl.felder.find(x => x.id === fid), alt = el('feld_'+fid); if(!fd || !alt) return;
+  alt.outerHTML = feldHtml(fd, +alt.getAttribute('data-nr') || 0, 'form', blattT());
+}
+function blockHaken(fid, i){ const f = window._blatt.f; const v = f[fid] = Object.assign({}, f[fid]); v.b = Object.assign({}, v.b); v.b[i] = !v.b[i]; feldNeu(fid); }
+function progSetzen(fid, k, an){ const f = window._blatt.f; f[fid] = Object.assign({}, f[fid]); f[fid][k] = an; }
+function hilfeMehr(fid){ const f = window._blatt.f; f._hilfe = Object.assign({}, f._hilfe); f._hilfe[fid] = (f._hilfe[fid] || 0) + 1; feldNeu(fid); }
+function tabSetzen(fid, zi, ci, w){
+  const b = window._blatt; b.f[fid] = Object.assign({}, b.f[fid]); b.f[fid][zi+'_'+ci] = w;
+  const fd = b.bl.felder.find(x => x.id === fid);
+  if(fd && fd.spanne){ const z = el('sp_'+fid+'_'+zi), t = spanneText(fd, b.f[fid], zi);
+    if(z){ z.textContent = t || 'rechnet sich'; z.className = 'spanne'+(t?'':' leer'); } }
+}
+function wahlSetzen(fid, i){
+  const b = window._blatt, fd = b.bl.felder.find(x => x.id === fid); if(!fd) return;
+  b.f[fid] = fd.opt[i];
+  document.querySelectorAll('input[name="w_'+fid+'"]').forEach(r => r.closest('.kachel').classList.toggle('an', r.checked));
 }
 
 /* QR-Code als SVG – ohne Nachladen aus dem Netz */
@@ -1743,9 +2180,28 @@ function schliesse(){ el('fensterBox').innerHTML = ''; }
 function lokalSpeichern(){ try { localStorage.setItem('iwbAG', JSON.stringify(D)); } catch(e){} }
 function lokalLaden(){ try { const o = JSON.parse(localStorage.getItem('iwbAG')); if(o) Object.keys(D).forEach(k => D[k] = o[k] || {}); } catch(e){} }
 
+/* Jeder Datensatz trägt die Gruppe (gid) – darauf prüfen die Firestore-Regeln,
+   welche Lehrkraft was lesen darf. */
+function gidVon(c, o){
+  if(!o || o.gid) return o && o.gid;
+  if(o.eid && D.einheiten[o.eid]) return D.einheiten[o.eid].gid;
+  if(o.sid && D.schueler[o.sid]) return D.schueler[o.sid].gid;
+  return '';
+}
+function gidErgaenzen(ops){
+  return ops.map(op => {
+    const [a,c,id,o] = op;
+    if(a !== 'set' || !o || ['anw','bew','antw','fotos','notfall','profilstatus'].indexOf(c) < 0 || o.gid) return op;
+    const g = gidVon(c, o); return g ? [a,c,id,Object.assign({}, o, { gid:g })] : op;
+  });
+}
+
 /* ops: [['set', sammlung, id, objekt] | ['del', sammlung, id]] */
 function schreibe(ops){
-  ops = einsichtErgaenzen(ops);
+  ops = gidErgaenzen(ops);
+  /* Die Einsichtsseiten schreibt nur der Dozent. Speichert das Tablet, werden sie
+     spätestens bei der Freigabe der Einheit neu aufgebaut. */
+  if(rolle === 'dozent') ops = einsichtErgaenzen(ops);
   if(!cloudAktiv){
     ops.forEach(([a,c,id,o]) => { if(a === 'set') D[c][id] = sauber(o); else delete D[c][id]; });
     lokalSpeichern(); alles(); return Promise.resolve();
@@ -1851,6 +2307,36 @@ function gruppenWahlBauen(){
   el('gruppeSel').innerHTML = ids.map(i => '<option value="'+i+'"'+(i===aktGruppe?' selected':'')+'>'+esc((m[i].name||'') + (m[i].schule ? ' · '+m[i].schule : '') + ' · ' + (m[i].schuljahr||''))+'</option>').join('')
     || '<option>Keine Gruppe</option>';
 }
+/* ---------- Dozent sieht die App so, wie eine Lehrkraft sie sieht ---------- */
+function ansichtWahlBauen(){
+  const box = el('ansichtWahl'); if(!box) return;
+  const echt = dozentStand ? dozentStand.rolle : rolle;
+  const lk = Object.values(D.benutzer).filter(b => b.rolle === 'lehrkraft');
+  if(echt !== 'dozent' || !lk.length || tabletKonto || elternModus){ box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  el('ansichtSel').innerHTML = '<option value="">Ansicht: ich (Dozent)</option>'+
+    lk.map(b => '<option value="'+esc(b.mail)+'"'+(vorschauLk === b.mail ? ' selected' : '')+'>Ansicht als: '+esc(b.name || b.mail)+'</option>').join('');
+}
+function alsLehrkraftAnsehen(mail){
+  if(!mail) return eigeneAnsicht();
+  const b = D.benutzer[mail]; if(!b) return;
+  if(!dozentStand) dozentStand = { rolle, meinName, meineMail, aktAns };
+  vorschauLk = mail; rolle = 'lehrkraft'; meineMail = mail; meinName = b.name || mail;
+  aktGruppe = ''; aktAns = 'uebersicht'; schliesse(); alles(); window.scrollTo(0,0);
+}
+function eigeneAnsicht(){
+  if(!dozentStand) return;
+  rolle = dozentStand.rolle; meinName = dozentStand.meinName; meineMail = dozentStand.meineMail; aktAns = dozentStand.aktAns;
+  dozentStand = null; vorschauLk = null; aktGruppe = ''; schliesse(); alles();
+}
+function vorschauBanner(){
+  if(!vorschauLk) return '';
+  const b = D.benutzer[vorschauLk] || {};
+  const gr = (b.gruppen || []).map(g => (D.gruppen[g] || {}).name).filter(Boolean);
+  return '<div class="ansichtbanner"><span><b>Vorschau:</b> So sieht <b>'+esc(b.name || vorschauLk)+'</b> die App · Gruppen: '+
+    (gr.length ? esc(gr.join(', ')) : 'alle (nicht eingeschränkt)')+'. In dieser Ansicht kannst du nichts ändern.</span>'+
+    '<span style="margin-left:auto"></span><button class="btn klein" onclick="eigeneAnsicht()">Zurück zu meiner Ansicht</button></div>';
+}
 function zeige(a){ if(!darf(a)) return; aktAns = a; naviBauen(); alles(); window.scrollTo(0,0); }
 
 /* Datenzugriff gefiltert auf die aktive Gruppe */
@@ -1866,11 +2352,11 @@ function alles(){
   if(!geladen) return;
   if(elternModus) return elternSeite();
   if(tabletKonto) { gruppenWahlBauen(); return; }
-  gruppenWahlBauen(); naviBauen();
+  gruppenWahlBauen(); naviBauen(); ansichtWahlBauen();
   el('topBenutzer').textContent = meinName ? meinName + ' · ' + (ROLLEN[rolle]||'') : '';
   const g = gruppeAktiv();
   if(rolle === 'lehrkraft' && !g){
-    el('haupt').innerHTML = '<section><div class="karte"><div class="leerzustand">'+
+    el('haupt').innerHTML = vorschauBanner() + '<section><div class="karte"><div class="leerzustand">'+
       '<b>Keine Gruppe freigegeben</b><p>Für dieses Konto ist noch keine Gruppe zugewiesen oder die zugewiesene Gruppe wurde gelöscht. '+
       'Bitte beim Betreuer melden.</p></div></div></section>';
     el('navi').innerHTML = ''; return;
@@ -1878,7 +2364,7 @@ function alles(){
   if(!darf(aktAns)) aktAns = Object.keys(ANSICHTEN).filter(darf)[0] || 'uebersicht';
   const f = { uebersicht:ansUebersicht, kalender:ansKalender, einheiten:ansEinheiten, bewertung:ansBewertung,
               blaetter:ansBlaetter, matrix:ansMatrix, gruppen:ansGruppen, einstellungen:ansEinstellungen }[aktAns];
-  el('haupt').innerHTML = f ? f(g) : '';
+  el('haupt').innerHTML = vorschauBanner() + (f ? f(g) : '');
   if(typeof einsichtAutoAuffrischen === 'function') setTimeout(einsichtAutoAuffrischen, 800);
 }
 
@@ -1914,18 +2400,22 @@ function ansUebersicht(g){
   } else h += '<p class="sub">Keine offene Einheit. Unter <b>Einheiten</b> kannst du den Jahresplan anlegen.</p>';
   h += '</div>';
 
-  h += '<div class="karte"><h2>Schüler</h2>';
+  h += '<div class="karte"><div class="werkzeuge"><h2 style="margin:0">Schüler</h2><span style="margin-left:auto"></span>'+
+    (schreibDarf() && sch.length ? '<button class="btn sek klein" onclick="notfallListe(\''+g.id+'\')">Notfallkontakte</button>'+
+      '<button class="btn sek klein" onclick="elternbriefVorschau(\''+g.id+'\')">Elternbriefe drucken</button>' : '')+'</div>';
   if(!sch.length) h += '<p class="sub">Noch keine Schüler in dieser Gruppe. Unter <b>Gruppen</b> eintragen.</p>';
   else {
-    h += '<div style="overflow:auto"><table class="liste"><thead><tr><th>Name</th><th>Klasse</th><th class="mitte">Anwesend</th><th class="mitte">Arbeitsblätter</th><th class="mitte">Bewertet</th><th>Einsichtscode</th></tr></thead><tbody>';
+    h += '<div style="overflow:auto"><table class="liste"><thead><tr><th>Name</th><th>Klasse</th><th class="mitte">Anwesend</th><th class="mitte">Arbeitsblätter</th><th class="mitte">Bewertet</th>'+
+      (schreibDarf() ? '<th class="mitte">Einwilligung</th><th class="mitte">Notfall</th>' : '')+'<th>Einsichtscode</th></tr></thead><tbody>';
     sch.forEach(s => {
       const ehz = eh.filter(e => e.status !== 'geplant');
       const da = ehz.filter(e => (D.anw[e.id+'_'+s.id]||{}).status === 'da').length;
       const ab = ehz.filter(e => (D.antw[e.id+'_'+s.id]||{}).ab).length;
       const bw = ehz.filter(e => Object.keys((D.bew[e.id+'_'+s.id]||{}).w||{}).length).length;
-      h += '<tr><td><b>'+esc(s.vorname+' '+s.nachname)+'</b></td><td>'+esc(s.klasse||'')+'</td>'+
+      h += '<tr><td>'+miniBild(s.id)+'<b>'+esc(s.vorname+' '+s.nachname)+'</b></td><td>'+esc(s.klasse||'')+'</td>'+
         '<td class="mitte">'+da+' / '+ehz.length+'</td><td class="mitte">'+ab+' / '+ehz.length+'</td>'+
         '<td class="mitte">'+bw+' / '+ehz.length+'</td>'+
+        (schreibDarf() ? '<td class="mitte">'+ewMarke(s)+'</td><td class="mitte">'+(D.notfall[s.id] ? '<span class="marke gruen">da</span>' : '<span class="marke grau">–</span>')+'</td>' : '')+
         '<td><code style="font-size:12px">'+esc(s.code||'')+'</code> '+
         '<button class="btn sek klein" onclick="codeZettel(\''+s.id+'\')">Zettel</button></td></tr>';
     });
@@ -1933,6 +2423,34 @@ function ansUebersicht(g){
   }
   h += '</div></section>';
   return h;
+}
+function ewMarke(s){
+  const ew = s.ew || {};
+  if(!ew.datum && !Object.keys(ew).length) return '<span class="marke rot" title="Elternbrief noch nicht zurück">fehlt</span>';
+  const t = EW_ARTEN.filter(([k]) => ew[k]).map(([,t]) => t).join(', ') || 'keine Einwilligung';
+  return '<span class="marke '+(ew.intern ? 'gruen' : 'gelb')+'" title="'+esc(t)+'">'+(ew.intern ? 'liegt vor' : 'eingeschränkt')+'</span>';
+}
+/* Notfallkontakte der Gruppe – nur für den Dozenten */
+function notfallListe(gid){
+  const sch = schuelerDer(gid), g = D.gruppen[gid] || {};
+  const zeilen = sch.map(s => { const k = (D.notfall[s.id] || {}).kontakte || [];
+    return '<tr><td>'+miniBild(s.id)+'<b>'+esc(s.vorname+' '+s.nachname)+'</b></td><td>'+esc(s.klasse||'')+'</td><td>'+
+      (k.length ? k.map(x => esc(x.name)+(x.bez ? ' ('+esc(x.bez)+')' : '')+' · <b>'+esc(x.tel)+'</b>').join('<br>')
+                : ((s.ew||{}).notfall ? '<span class="marke gelb">noch nicht eingetragen</span>' : '<span class="marke grau">keine Einwilligung</span>'))+'</td></tr>'; }).join('');
+  window._notfallDruck = '<div class="notfalldruck"><h2>Notfallkontakte · '+esc(g.name||'')+' · '+esc(g.schule||'')+'</h2>'+
+    '<p class="sub">Stand '+datumDe(heute())+' – vertraulich, nach der AG vernichten.</p><table class="liste"><thead><tr><th>Schüler</th><th>Klasse</th><th>Kontakt</th></tr></thead><tbody>'+zeilen+'</tbody></table></div>';
+  fenster('Notfallkontakte · ' + (g.name||''), '<div class="hinweis rot">Vertraulich – nur für dich sichtbar.</div><div style="overflow:auto"><table class="liste"><thead><tr><th>Schüler</th><th>Klasse</th><th>Kontakt</th></tr></thead><tbody>'+zeilen+'</tbody></table></div>',
+    '<button class="btn sek" onclick="schliesse()">Schließen</button><button class="btn" onclick="druckeHtml(window._notfallDruck)">Drucken</button>', 820);
+}
+/* Beliebiges HTML allein drucken – ohne die restliche Seite */
+function druckeHtml(html){
+  let box = el('druckbox');
+  if(!box){ box = document.createElement('div'); box.id = 'druckbox'; document.body.appendChild(box); }
+  box.innerHTML = html;
+  document.body.classList.add('druckmodus');
+  const weg = () => { document.body.classList.remove('druckmodus'); box.innerHTML = ''; window.removeEventListener('afterprint', weg); };
+  window.addEventListener('afterprint', weg);
+  window.print();
 }
 const kz = (w,t,k) => '<div class="kz'+(k?' '+k:'')+'"><b>'+esc(w)+'</b><span>'+esc(t)+'</span></div>';
 const nrText = nr => ({FB:'Freies Bauen', WB:'Wettbewerb', AB:'Abschluss'}[nr] || ('Lektion '+nr));
@@ -2018,7 +2536,8 @@ function einheitOeffnen(eid){
   sch.forEach(s => {
     const k = eid+'_'+s.id, a = D.anw[k] || {}, b = D.bew[k] || {}, t = D.antw[k] || {};
     const anzahl = Object.keys(b.w||{}).length;
-    h += '<tr><td><b>'+esc(s.vorname+' '+s.nachname)+'</b>'+(b.sp?' <span class="marke blau">Schwerpunkt</span>':'')+'</td>'+
+    h += '<tr><td>'+miniBild(s.id)+'<b>'+esc(s.vorname+' '+s.nachname)+'</b>'+(b.sp?' <span class="marke blau">Schwerpunkt</span>':'')+
+      ((t.team||[]).length > 1 ? '<br><span class="sub" style="font-size:12px">Team: '+esc(t.team.filter(x => x !== s.id).map(x => (D.schueler[x]||{}).vorname||'').join(', '))+'</span>' : '')+'</td>'+
       '<td>'+(schreibDarf()
         ? ['da','Da','ent','Entschuldigt','fehlt','Fehlt'].reduce((acc,_,i,arr) => i%2 ? acc : acc +
             '<button class="btn '+(a.status===arr[i]?'':'sek')+' klein" onclick="anwSetzen(\''+eid+'\',\''+s.id+'\',\''+arr[i]+'\')">'+arr[i+1]+'</button> ', '')
@@ -2198,33 +2717,13 @@ function ansBlaetter(g){
   return h;
 }
 
-/* Leere Vorschau eines Arbeitsblatts – zum Prüfen und Überarbeiten */
+/* Vorschau eines Arbeitsblatts – zum Ausprobieren, es wird nichts gespeichert */
 function blattVorschau(nr){
   const bl = blatt(nr); if(!bl) return;
-  let h = '<div class="hinweis">So bekommt der Schüler das Blatt am Tablet zu sehen. Eingaben werden hier nicht gespeichert.</div>';
-  bl.felder.forEach(fd => {
-    h += '<h3>'+esc(fd.text)+'</h3>' + (fd.hinweis ? '<p class="formhinweis">'+esc(fd.hinweis)+'</p>' : '');
-    if(fd.typ === 'tab'){
-      h += '<div style="overflow:auto"><table class="liste"><thead><tr><th></th>'+
-        fd.spalten.map(c => '<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+
-        fd.zeilen.map(z => '<tr><td style="min-width:150px"><b>'+esc(z)+'</b></td>'+
-          fd.spalten.map(() => '<td><input disabled></td>').join('')+'</tr>').join('')+'</tbody></table></div>';
-    } else if(fd.typ === 'check' || fd.typ === 'wahl'){
-      h += fd.opt.map(o => '<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;'+
-        'font-size:14px;color:var(--text);margin-bottom:6px"><input type="'+(fd.typ==='check'?'checkbox':'radio')+
-        '" disabled style="width:auto"> '+esc(o)+'</label>').join('');
-    } else if(fd.typ === 'foto'){
-      h += '<button class="btn sek" disabled>Foto aufnehmen oder auswählen</button>';
-    } else if(fd.typ === 'kurz' || fd.typ === 'zahl'){
-      h += '<input disabled>';
-    } else {
-      h += '<textarea disabled></textarea>';
-    }
-  });
-  h += '<div class="hinweis gelb" style="margin-top:18px"><b>Etwas ändern?</b> Die Blätter stehen gesammelt '+
-       'im Abschnitt <code>BLAETTER</code> oben in dieser Datei. Kurze Texte kannst du dort direkt anpassen – '+
-       'für neue Felder oder andere Fragen sag Bescheid.</div>';
-  fenster('Vorschau: ' + bl.titel, h, '<button class="btn sek" onclick="schliesse()">Schließen</button>', 820);
+  window._blatt = { vorschau:true, f:{}, fotos:[], bl, sids:[] };
+  const h = '<div class="hinweis">So bekommen die Schüler das Blatt am Tablet zu sehen. Du kannst alles ausprobieren – Blöcke abhaken, Hilfen aufklappen, Werte eintragen. Gespeichert wird hier nichts.</div>'+
+    blattHtml(bl, 'form', blattT());
+  fenster('Vorschau: ' + bl.titel, h, '<button class="btn sek" onclick="schliesse()">Schließen</button>', 920);
 }
 function blattAnsehen(eid, sid){
   const e = D.einheiten[eid], s = D.schueler[sid]; if(!e || !s) return;
@@ -2233,35 +2732,12 @@ function blattAnsehen(eid, sid){
     '<button class="btn sek" onclick="einheitOeffnen(\''+eid+'\')">Zurück</button>');
   const t = D.antw[eid+'_'+sid] || { f:{}, fotos:[] };
   let h = '<div class="hinweis">'+esc(s.vorname+' '+s.nachname)+' · '+esc(nrText(e.nr))+' · '+
-    (t.ab ? '<span class="marke gruen">abgegeben</span>' : '<span class="marke gelb">nicht abgegeben</span>')+'</div>';
+    (t.ab ? '<span class="marke gruen">abgegeben</span>' : '<span class="marke gelb">nicht abgegeben</span>')+
+    ((t.team||[]).length > 1 ? '<br>Teamarbeit mit: '+esc(t.team.filter(x => x !== sid).map(namenVon).join(', ')) : '')+'</div>';
   h += blattLesen(bl, t);
   fenster(bl.titel, h, '<button class="btn sek" onclick="einheitOeffnen(\''+eid+'\')">Zurück</button>', 820);
 }
-function blattLesen(bl, t){
-  const f = t.f || {};
-  let h = '';
-  bl.felder.forEach(fd => {
-    h += '<h3>'+esc(fd.text)+'</h3>';
-    const v = f[fd.id];
-    if(fd.typ === 'tab'){
-      h += '<div style="overflow:auto"><table class="liste"><thead><tr><th></th>'+fd.spalten.map(c => '<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>';
-      fd.zeilen.forEach((z,zi) => { h += '<tr><td><b>'+esc(z)+'</b></td>'+
-        fd.spalten.map((c,ci) => '<td>'+esc(((v||{})[zi+'_'+ci]) || '')+'</td>').join('')+'</tr>'; });
-      h += '</tbody></table></div>';
-    } else if(fd.typ === 'check'){
-      h += '<ul style="margin:0 0 10px;padding-left:18px">'+fd.opt.map((o,i) =>
-        '<li>'+((v||{})[i] ? '☑ ' : '☐ ')+esc(o)+'</li>').join('')+'</ul>';
-    } else if(fd.typ === 'foto'){
-      const fo = (t.fotos||[]).filter(x => x.feld === fd.id);
-      const mit = fo.map(x => ({ x, u: fotoUrl(x) })).filter(o => o.u);
-      h += mit.length ? '<div class="fotos">'+mit.map(o => '<figure><img src="'+esc(o.u)+'" alt=""><figcaption>'+esc(o.x.name||'')+'</figcaption></figure>').join('')+'</div>'
-                      : (fo.length ? '<p class="sub">Foto wird geladen …</p>' : '<p class="sub">Kein Foto hochgeladen.</p>');
-    } else {
-      h += v ? '<p style="white-space:pre-wrap;margin:0 0 10px">'+esc(v)+'</p>' : '<p class="sub">–</p>';
-    }
-  });
-  return h;
-}
+function blattLesen(bl, t){ return blattHtml(bl, 'lesen', t || {}); }
 
 
 /* =====================================================================
@@ -2319,8 +2795,11 @@ function feldBearbeiten(i){
     '<div class="voll"><label>Beschriftung – die Frage für die Schüler</label><input id="fText" value="'+esc(f.text)+'"></div>'+
     '<div class="voll"><label>Hinweis darunter (freiwillig)</label><input id="fHin" value="'+esc(f.hinweis||'')+'"></div>'+
     '<div class="voll"><label>Art des Feldes</label><select id="fTyp" onchange="feldTypWechsel(this.value)">'+
-      FELDTYPEN.map(([w,t]) => '<option value="'+w+'"'+(f.typ===w?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select></div></div>'+
-    '<div id="fExtra"></div>';
+      FELDTYPEN.filter(([w]) => w !== 'prog' || f.typ === 'prog').map(([w,t]) => '<option value="'+w+'"'+(f.typ===w?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select></div></div>'+
+    '<div id="fExtra"></div>'+
+    '<label style="margin-top:12px">Hilfen – eine je Zeile, die Schüler decken sie nacheinander auf (freiwillig)</label>'+
+    '<textarea id="fHilfe" style="min-height:90px">'+esc((f.hilfe||[]).join('\n'))+'</textarea>'+
+    '<label class="haekchen" style="margin-top:10px !important"><input type="checkbox" id="fZusatz" '+(f.zusatz?'checked':'')+'> Als Profi-Aufgabe für schnelle Teams (eingeklappt)</label>';
   window._fedit = { index:i, feld:JSON.parse(JSON.stringify(f)) };
   fenster(neu ? 'Feld hinzufügen' : 'Feld ändern', h,
     '<button class="btn sek" onclick="blattEditorZeichnen()">Zurück</button>'+
@@ -2339,13 +2818,19 @@ function feldTypWechsel(typ){
       '<textarea id="fZeilen" style="min-height:140px">'+zeile(f.zeilen)+'</textarea></div>'+
       '<div><label>Spalten – eine je Zeile</label>'+
       '<textarea id="fSpalten" style="min-height:140px">'+zeile(f.spalten)+'</textarea></div></div>';
+  } else if(typ === 'info'){
+    box.innerHTML = '<label>Text im Hinweiskasten</label><textarea id="fInhalt" style="min-height:90px">'+esc(f.inhalt||'')+'</textarea>';
+  } else if(typ === 'prog'){
+    box.innerHTML = '<div class="hinweis">Die Blöcke eines SPIKE-Programms stehen in der Datei (Abschnitt <code>BLAETTER</code>). '+
+      'Hier kannst du Überschrift, Hinweis und Hilfen ändern – die Blöcke bleiben, wie sie sind.</div>';
+    const s = el('fTyp'); if(s) s.disabled = true;
   } else box.innerHTML = '';
 }
 function feldSichern(){
   const w = window._fedit, f = w.feld;
   f.text = el('fText').value.trim();
   f.hinweis = el('fHin').value.trim();
-  f.typ = el('fTyp').value;
+  f.typ = el('fTyp').disabled ? f.typ : el('fTyp').value;
   if(!f.text) return toast('Bitte eine Beschriftung eintragen');
   const liste = id => (el(id) ? el(id).value.split('\n').map(x => x.trim()).filter(Boolean) : []);
   if(f.typ === 'wahl' || f.typ === 'check'){
@@ -2354,7 +2839,11 @@ function feldSichern(){
   } else if(f.typ === 'tab'){
     f.zeilen = liste('fZeilen'); f.spalten = liste('fSpalten'); delete f.opt;
     if(!f.zeilen.length || !f.spalten.length) return toast('Bitte Zeilen und Spalten eintragen');
-  } else { delete f.opt; delete f.zeilen; delete f.spalten; }
+  } else if(f.typ === 'info'){
+    f.inhalt = el('fInhalt') ? el('fInhalt').value.trim() : (f.inhalt || ''); delete f.opt; delete f.zeilen; delete f.spalten;
+  } else if(f.typ !== 'prog'){ delete f.opt; delete f.zeilen; delete f.spalten; }
+  const hilfen = liste('fHilfe'); if(hilfen.length) f.hilfe = hilfen; else delete f.hilfe;
+  if(el('fZusatz') && el('fZusatz').checked) f.zusatz = true; else delete f.zusatz;
   if(w.index < 0) window._bedit.felder.push(f); else window._bedit.felder[w.index] = f;
   blattEditorZeichnen();
 }
@@ -2428,14 +2917,17 @@ function ansGruppen(){
     h += '<div class="karte"><div class="werkzeuge"><h2 style="margin:0">'+esc(g.name)+'</h2>'+
       '<span class="marke grau">'+esc(g.schule||'')+'</span><span class="marke blau">'+esc(g.schuljahr||'')+'</span>'+
       '<span style="margin-left:auto"></span><button class="btn sek klein" onclick="schuelerNeu(\''+g.id+'\')">Schüler hinzufügen</button>'+
+      '<button class="btn sek klein" onclick="importDialog(\''+g.id+'\')">Liste einfügen</button>'+
+      '<button class="btn sek klein" onclick="elternbriefVorschau(\''+g.id+'\')">Elternbriefe</button>'+
       '<button class="btn sek klein" onclick="gruppeNeu(\''+g.id+'\')">Bearbeiten</button>'+
       '<button class="btn sek klein" onclick="gruppeWeg(\''+g.id+'\')">Löschen</button></div>';
     if(!sch.length) h += '<p class="sub">Noch keine Schüler.</p>';
     else {
-      h += '<div style="overflow:auto"><table class="liste"><thead><tr><th>Name</th><th>Klasse</th><th class="mitte">PIN</th><th>Einsichtscode</th><th style="width:220px"></th></tr></thead><tbody>';
-      sch.forEach(s => h += '<tr><td><b>'+esc(s.vorname+' '+s.nachname)+'</b></td><td>'+esc(s.klasse||'')+'</td>'+
-        '<td class="mitte"><code>'+esc(s.pin||'')+'</code></td><td><code style="font-size:12px">'+esc(s.code||'')+'</code></td>'+
+      h += '<div style="overflow:auto"><table class="liste"><thead><tr><th>Name</th><th>Klasse</th><th class="mitte">PIN</th><th class="mitte">Einwilligung</th><th>Einsichtscode</th><th style="width:340px"></th></tr></thead><tbody>';
+      sch.forEach(s => h += '<tr><td>'+miniBild(s.id)+'<b>'+esc(s.vorname+' '+s.nachname)+'</b></td><td>'+esc(s.klasse||'')+'</td>'+
+        '<td class="mitte"><code>'+esc(s.pin||'')+'</code></td><td class="mitte">'+ewMarke(s)+'</td><td><code style="font-size:12px">'+esc(s.code||'')+'</code></td>'+
         '<td style="text-align:right"><button class="btn sek klein" onclick="codeZettel(\''+s.id+'\')">Zettel</button> '+
+        '<button class="btn sek klein" onclick="elternbriefVorschau(null,\''+s.id+'\')">Brief</button> '+
         '<button class="btn sek klein" onclick="schuelerNeu(\''+g.id+'\',\''+s.id+'\')">Bearbeiten</button> '+
         '<button class="btn sek klein" onclick="schuelerWeg(\''+s.id+'\')">Löschen</button></td></tr>');
       h += '</tbody></table></div>';
@@ -2480,8 +2972,9 @@ function schuelerNeu(gid, sid){
       '<button class="btn sek klein" style="white-space:nowrap" onclick="pinWuerfeln()">Neue PIN</button></div></div></div>'+
     '<p class="formhinweis">Mit der PIN meldet sich der Schüler am Gruppen-Tablet an. '+
     (sid ? 'Wird das Feld leer gelassen, bleibt die bisherige PIN bestehen. ' : '')+
-    'Der Einsichtscode für Schüler und Eltern wird einmalig erzeugt und ändert sich nicht.</p>',
-    '<button class="btn sek" onclick="schliesse()">Abbrechen</button><button class="btn" onclick="schuelerSpeichern(\''+gid+'\',\''+(sid||'')+'\')">Speichern</button>');
+    'Der Einsichtscode für Schüler und Eltern wird einmalig erzeugt und ändert sich nicht.</p>'+
+    ewBlock(s, sid),
+    '<button class="btn sek" onclick="schliesse()">Abbrechen</button><button class="btn" onclick="schuelerSpeichern(\''+gid+'\',\''+(sid||'')+'\')">Speichern</button>', 760);
 }
 function schuelerSpeichern(gid, sid){
   const v = el('sVor').value.trim(), n = el('sNach').value.trim();
@@ -2490,15 +2983,49 @@ function schuelerSpeichern(gid, sid){
   const id = sid || uid();
   let pin = el('sPin').value.replace(/\D/g,'').slice(0,4);
   if(pin.length !== 4) pin = (alt && alt.pin) ? alt.pin : String(Math.floor(1000 + Math.random()*9000));
-  const o = { id, gid, vorname:v, nachname:n, klasse:el('sKlasse').value.trim(), pin,
-    code:(alt && alt.code) || neuerCode(8), aktiv:true };
-  schreibe([['set','schueler',id,o]]).then(() => { schliesse(); toast('Gespeichert'); });
+  const ew = {}; document.querySelectorAll('.ewWahl').forEach(c => { if(c.checked) ew[c.getAttribute('data-k')] = true; });
+  if(el('ewDatum') && el('ewDatum').value) ew.datum = el('ewDatum').value;
+  const o = Object.assign({}, alt || {}, { id, gid, vorname:v, nachname:n, klasse:el('sKlasse').value.trim(), pin,
+    code:(alt && alt.code) || neuerCode(8), aktiv:true, ew });
+  const ops = [['set','schueler',id,o]], jetzt = new Date().toISOString();
+  /* Notfallkontakte */
+  const k = [0,1].map(i => ({ name:el('sNfN'+i).value.trim(), bez:el('sNfB'+i).value.trim(), tel:el('sNfT'+i).value.trim() })).filter(x => x.name || x.tel);
+  if(k.length && ew.notfall){
+    ops.push(['set','notfall', id, { sid:id, gid, kontakte:k, stand:jetzt }], ['set','profilstatus', id, { sid:id, gid, notfall:true, stand:jetzt }]);
+  } else if(D.notfall[id]){
+    ops.push(['del','notfall', id], ['set','profilstatus', id, { sid:id, gid, notfall:false, stand:jetzt }]);
+  }
+  /* Einwilligung zurückgenommen: Profilfoto entfernen */
+  if(!ew.intern && D.fotos['profil_'+id]) ops.push(['del','fotos','profil_'+id]);
+  if(k.length && !ew.notfall) toast('Notfallkontakte werden nur mit Einwilligung gespeichert');
+  schreibe(ops).then(() => { schliesse(); toast('Gespeichert'); });
+}
+const EW_ARTEN = [['intern','Fotos nur intern (Profilfoto, Fotos auf Arbeitsblättern)'],['social','Veröffentlichung in Social Media'],
+  ['presse','Veröffentlichung in Zeitung und Presse'],['notfall','Notfallkontakte speichern']];
+/* Einwilligungen, Profilfoto und Notfallkontakt im Schülerdialog */
+function ewBlock(s, sid){
+  const ew = s.ew || {}, nf = (sid && D.notfall[sid]) || {}, k = nf.kontakte || [];
+  let h = '<h3>Einwilligung der Eltern</h3><p class="formhinweis">Aus dem unterschriebenen Elternbrief übernehmen. '+
+    'Profilfoto und Notfallkontakt fragt das Tablet nur ab, wenn hier der passende Haken gesetzt ist.</p>'+
+    '<div class="checkliste">'+EW_ARTEN.map(([key,t]) => '<label><input type="checkbox" class="ewWahl" data-k="'+key+'" '+(ew[key]?'checked':'')+'><span>'+esc(t)+'</span></label>').join('')+'</div>'+
+    '<div class="feldreihe"><div><label>Brief zurück am</label><input type="date" id="ewDatum" value="'+esc(ew.datum||'')+'"></div></div>';
+  if(sid && profilUrl(sid)) h += '<h3>Profilfoto</h3><div style="display:flex;gap:12px;align-items:center"><img class="profilbild" style="margin:0" src="'+esc(profilUrl(sid))+'" alt="">'+
+    '<button class="btn sek klein" onclick="profilFotoWeg(\''+sid+'\')">Foto löschen</button></div>';
+  h += '<h3>Notfallkontakte</h3><p class="formhinweis">Nur für dich sichtbar – nicht für Lehrkräfte und nicht in der Eltern-Einsicht.</p>'+
+    [0,1].map(i => { const x = k[i] || {}; return '<div class="feldreihe" style="margin-bottom:6px"><div><label>Name</label><input id="sNfN'+i+'" value="'+esc(x.name||'')+'"></div>'+
+      '<div><label>Beziehung</label><input id="sNfB'+i+'" value="'+esc(x.bez||'')+'"></div>'+
+      '<div><label>Telefon</label><input id="sNfT'+i+'" value="'+esc(x.tel||'')+'"></div></div>'; }).join('');
+  return h;
+}
+function profilFotoWeg(sid){
+  if(!confirm('Profilfoto löschen?')) return;
+  schreibe([['del','fotos','profil_'+sid]]).then(() => { delete D.fotos['profil_'+sid]; toast('Profilfoto gelöscht'); const s = D.schueler[sid]; if(s) schuelerNeu(s.gid, sid); });
 }
 function pinWuerfeln(){ el('sPin').value = String(Math.floor(1000 + Math.random()*9000)); }
 function schuelerWeg(sid){
   const s = D.schueler[sid]; if(!s) return;
   if(!confirm('„'+s.vorname+' '+s.nachname+'“ löschen?\n\nAlle Bewertungen und Arbeitsblätter dieses Schülers werden mit gelöscht.')) return;
-  const ops = [['del','schueler',sid]]; if(s.code) ops.push(['del','einsicht',s.code]);
+  const ops = [['del','schueler',sid],['del','fotos','profil_'+sid],['del','notfall',sid],['del','profilstatus',sid]]; if(s.code) ops.push(['del','einsicht',s.code]);
   einheitenDer(s.gid).forEach(e => ops.push(['del','anw',e.id+'_'+sid],['del','bew',e.id+'_'+sid],['del','antw',e.id+'_'+sid]));
   schreibe(ops).then(() => toast('Gelöscht'));
 }
@@ -2531,6 +3058,128 @@ function codeZettel(sid){
 </script>
 
 <script>
+/* =====================================================================
+   Schülerliste einfügen – zum Beispiel aus Excel kopiert
+   ===================================================================== */
+function importDialog(gid){
+  const g = D.gruppen[gid]; if(!g) return;
+  fenster('Schülerliste einfügen · ' + g.name,
+    '<p class="sub">Eine Zeile je Schüler. Ihr könnt die Spalten direkt aus Excel kopieren – oder Namen von Hand tippen, '+
+    'getrennt durch Tabulator, Semikolon oder Komma. Kopfzeilen wie „Vorname“ werden übersprungen.</p>'+
+    '<div class="feldreihe"><div><label>Reihenfolge der Spalten</label><select id="imReihe" onchange="importVorschau(\''+gid+'\')">'+
+      '<option value="vn">Vorname · Nachname · Klasse</option><option value="nv">Nachname · Vorname · Klasse</option></select></div>'+
+    '<div><label>Klasse, falls keine Spalte</label><input id="imKlasse" placeholder="z. B. 8a" oninput="importVorschau(\''+gid+'\')"></div></div>'+
+    '<textarea id="imText" style="min-height:160px;font-family:monospace" placeholder="Mia\tAhrens\t8a\nLuca\tBerger\t8a" oninput="importVorschau(\''+gid+'\')"></textarea>'+
+    '<div id="imVorschau" style="margin-top:12px"></div>',
+    '<button class="btn sek" onclick="schliesse()">Abbrechen</button><button class="btn" onclick="importSpeichern(\''+gid+'\')">Übernehmen</button>', 760);
+  importVorschau(gid);
+}
+function importLesen(gid){
+  const reihe = el('imReihe').value, kl = el('imKlasse').value.trim();
+  const vorhanden = new Set(schuelerDer(gid).map(s => (s.vorname+' '+s.nachname).toLowerCase()));
+  const neu = [], doppelt = [];
+  el('imText').value.split(/\r?\n/).forEach(z => {
+    z = z.trim(); if(!z) return;
+    if(/vorname|nachname/i.test(z)) return;
+    let t = z.split(/\t|;|,/).map(x => x.trim()).filter(Boolean);
+    if(t.length === 1){                       // nur ein Feld: am letzten Leerzeichen trennen
+      const w = t[0].split(/\s+/);
+      if(w.length < 2) return;
+      t = reihe === 'vn' ? [w.slice(0,-1).join(' '), w[w.length-1]] : [w[0], w.slice(1).join(' ')];
+    }
+    const [a, b, c] = t;
+    const o = reihe === 'vn' ? { vorname:a, nachname:b } : { vorname:b, nachname:a };
+    o.klasse = c || kl;
+    if(!o.vorname || !o.nachname) return;
+    const key = (o.vorname+' '+o.nachname).toLowerCase();
+    if(vorhanden.has(key)) doppelt.push(o); else { vorhanden.add(key); neu.push(o); }
+  });
+  return { neu, doppelt };
+}
+function importVorschau(gid){
+  const { neu, doppelt } = importLesen(gid);
+  el('imVorschau').innerHTML = !neu.length && !doppelt.length ? '<p class="sub">Noch nichts eingefügt.</p>' :
+    '<p class="sub" style="margin:0 0 6px"><b>'+neu.length+'</b> neue Schüler'+(doppelt.length ? ' · '+doppelt.length+' schon vorhanden, werden übersprungen' : '')+'</p>'+
+    '<div style="max-height:220px;overflow:auto"><table class="liste"><thead><tr><th>Vorname</th><th>Nachname</th><th>Klasse</th></tr></thead><tbody>'+
+    neu.map(o => '<tr><td>'+esc(o.vorname)+'</td><td>'+esc(o.nachname)+'</td><td>'+esc(o.klasse||'')+'</td></tr>').join('')+'</tbody></table></div>';
+}
+function importSpeichern(gid){
+  const { neu } = importLesen(gid);
+  if(!neu.length) return toast('Keine neuen Schüler gefunden');
+  const ops = neu.map(o => { const id = uid();
+    return ['set','schueler', id, { id, gid, vorname:o.vorname, nachname:o.nachname, klasse:o.klasse||'',
+      pin:String(Math.floor(1000 + Math.random()*9000)), code:neuerCode(8), aktiv:true, ew:{} }]; });
+  schreibe(ops).then(() => { schliesse(); toast(neu.length + ' Schüler angelegt'); });
+}
+
+/* =====================================================================
+   Elternbrief: Einwilligung für Fotos und Notfallkontakte
+   ===================================================================== */
+let briefListe = [];
+function elternbriefHtml(s){
+  const g = s ? (D.gruppen[s.gid] || {}) : (gruppeAktiv() || {});
+  const e = einst(), kk = '<span class="kk"></span>';
+  const linie = (t, inhalt) => '<div><small>'+t+'</small><b>'+(inhalt ? esc(inhalt) : '&nbsp;')+'</b></div>';
+  const kontakt = (e.briefName || 'David Omowanile') + ', Industriepark Werk Bobingen' + (e.briefKontakt ? ' · ' + e.briefKontakt : '');
+  return '<div class="brief">'+
+    '<div class="bkopf"><img src="'+LOGO+'" alt="IWB"><div class="abs"><b>Industriepark Werk Bobingen GmbH &amp; Co. KG</b><br>'+
+      'Technik-AG · Berufsorientierung'+(g.schuljahr ? ' · Schuljahr '+esc(g.schuljahr) : '')+'</div></div>'+
+    '<h1>Einwilligung: Fotos und Notfallkontakte</h1>'+
+    '<div class="person">'+linie('Name der Schülerin / des Schülers', s ? s.vorname+' '+s.nachname : '')+
+      linie('Klasse', s ? s.klasse : '')+linie('Gruppe', s ? g.name : '')+'</div>'+
+    '<p>Liebe Eltern und Erziehungsberechtigte,</p>'+
+    '<p>Ihr Kind nimmt an der Technik-AG des Industrieparks Werk Bobingen teil. Damit wir die AG sicher betreuen und gut begleiten können, '+
+    'bitten wir Sie um Ihre Einwilligung zu den folgenden Punkten. <b>Alle Angaben sind freiwillig.</b> Wenn Sie nicht einwilligen, entsteht '+
+    'Ihrem Kind kein Nachteil – es nimmt ganz normal an der AG teil.</p>'+
+    '<div class="abschnitt"><h2><span class="n">1</span>Fotos nur für die interne Nutzung</h2>'+
+    '<p>Ihr Kind macht am AG-Tablet ein Profilfoto von sich. Es dient allein dazu, dass die Betreuer die Schülerinnen und Schüler sicher '+
+    'erkennen und zuordnen können. Außerdem fotografieren die Teams ihre Modelle für die Arbeitsblätter – dabei kann Ihr Kind mit im Bild sein. '+
+    'Diese Fotos sehen nur die Betreuer der AG, die zuständigen Lehrkräfte und Sie selbst über Ihren persönlichen Zugangscode. '+
+    'Sie werden <b>nicht veröffentlicht</b>.</p>'+
+    '<div class="wahl nebeneinander"><label>'+kk+'<b>Ja, ich willige ein.</b></label><label>'+kk+'Nein, ich willige nicht ein.</label></div></div>'+
+    '<div class="abschnitt"><h2><span class="n">2</span>Fotos für Veröffentlichungen</h2>'+
+    '<p>Gelegentlich berichten wir über die AG in der Öffentlichkeit. Dafür möchten wir Fotos aus der AG verwenden, auf denen Ihr Kind '+
+    'zu erkennen ist – <b>ohne Nennung des Nachnamens</b>. Bitte kreuzen Sie an, wofür wir die Fotos verwenden dürfen:</p>'+
+    '<div class="wahl">'+
+      '<label>'+kk+'<span><b>Social Media</b> – Kanäle des Industrieparks Werk Bobingen (zum Beispiel Instagram, LinkedIn, Facebook)</span></label>'+
+      '<label>'+kk+'<span><b>Zeitung und Presse</b> – Berichte in Zeitungen und deren Online-Ausgaben</span></label>'+
+      '<label>'+kk+'<span>Ich willige in <b>keine</b> Veröffentlichung ein.</span></label></div>'+
+    '<p class="hinw">Fotos im Internet können weltweit abgerufen und von Dritten kopiert werden. Nach einem Widerruf entfernen wir sie aus unseren '+
+    'eigenen Kanälen; eine vollständige Löschung im Internet und in bereits gedruckten Ausgaben können wir nicht garantieren.</p></div>'+
+    '<div class="abschnitt"><h2><span class="n">3</span>Notfallkontakte</h2>'+
+    '<p>Damit wir im Notfall schnell jemanden erreichen, möchten wir bis zu zwei Kontaktpersonen speichern. Diese Daten sieht nur der Betreuer '+
+    'der AG – sie erscheinen <b>nicht</b> in der Online-Einsicht.</p>'+
+    '<table class="nk"><thead><tr><th></th><th>Name</th><th>Beziehung zum Kind</th><th>Telefon (tagsüber erreichbar)</th></tr></thead>'+
+    '<tbody><tr><td>1</td><td></td><td></td><td></td></tr><tr><td>2</td><td></td><td></td><td></td></tr></tbody></table>'+
+    '<div class="wahl"><label>'+kk+'<span><b>Ja</b>, ich willige ein, dass diese Kontaktdaten für die Dauer der AG gespeichert werden.</span></label></div></div>'+
+    '<div class="rechtliches">'+
+    '<p><b>Verantwortlich:</b> Industriepark Werk Bobingen GmbH &amp; Co. KG. Ansprechpartner: '+esc(kontakt)+'.</p>'+
+    '<p><b>Speicherung und Löschung:</b> Die Daten werden in der passwortgeschützten Web-App der Technik-AG gespeichert und nach dem Ende der '+
+    'AG-Teilnahme Ihres Kindes gelöscht. Veröffentlichte Fotos bleiben davon unberührt, bis Sie widerrufen.</p>'+
+    '<p><b>Widerruf:</b> Sie können jede Einwilligung jederzeit ohne Angabe von Gründen ganz oder teilweise widerrufen – formlos beim '+
+    'Ansprechpartner. Der Widerruf gilt für die Zukunft. Sie haben das Recht auf Auskunft, Berichtigung und Löschung Ihrer Daten.</p></div>'+
+    '<div class="unterschrift"><div>Ort, Datum</div><div>Unterschrift einer/eines Erziehungsberechtigten</div>'+
+      '<div>Unterschrift der Schülerin / des Schülers</div></div>'+
+    '<div class="rueckgabe">Bitte geben Sie diesen Brief ausgefüllt '+(e.briefFrist ? 'bis zum <u>'+esc(e.briefFrist)+'</u>' : 'zur nächsten AG-Einheit')+
+      ' an Ihr Kind mit. Vielen Dank!</div>'+
+  '</div>';
+}
+/* gid → alle Schüler der Gruppe, sid → ein Schüler, beides leer → leeres Blatt */
+function elternbriefVorschau(gid, sid){
+  if(sid) briefListe = [D.schueler[sid]].filter(Boolean);
+  else if(gid) briefListe = schuelerDer(gid);
+  else briefListe = [null];
+  if(!briefListe.length) briefListe = [null];
+  const n = briefListe.length;
+  const titel = sid && briefListe[0] ? 'Elternbrief: ' + briefListe[0].vorname + ' ' + briefListe[0].nachname
+              : (gid && briefListe[0] ? 'Elternbriefe: ' + ((D.gruppen[gid]||{}).name || '') : 'Elternbrief (leer zum Ausfüllen)');
+  fenster(titel, '<div class="briefvorschau">'+briefListe.map(elternbriefHtml).join('')+'</div>',
+    '<span class="sub" style="margin:0 auto 0 0;align-self:center">'+(briefListe[0] ? n+' Brief'+(n>1?'e':'')+', mit Namen vorausgefüllt' : 'Ohne Namen – zum Ausfüllen von Hand')+'</span>'+
+    '<button class="btn sek" onclick="elternbriefVorschau()">Leeres Blatt</button>'+
+    '<button class="btn sek" onclick="schliesse()">Schließen</button>'+
+    '<button class="btn" onclick="druckeHtml(briefListe.map(elternbriefHtml).join(\'\'))">'+(n > 1 ? n+' Briefe drucken' : 'Drucken')+'</button>', 900);
+}
+
 /* =====================================================================
    Jahreskalender, Ferien und Jahresplanung
    ===================================================================== */
@@ -2734,7 +3383,11 @@ function ansKalender(){
   h += '<div class="legende">'+gr.map(g => '<span class="legpunkt"><i style="background:'+gruppenFarbe(g.id)+'"></i>'+
     '<b>'+esc(g.name)+'</b> <span class="sub">'+esc(g.schule||'')+
     (g.tag ? ' · '+WOCHENTAGE[g.tag].slice(0,2)+'. '+(g.paritaet ? 'ungerade' : 'gerade')+' KW' : '')+'</span></span>').join('')+
-    '<span class="legpunkt" style="margin-left:auto"><i class="punkt-geplant"></i>geplant</span>'+
+    '<span class="legpunkt" style="margin-left:auto"><i class="f-ferien"></i>Ferien</span>'+
+    '<span class="legpunkt"><i class="f-feiertag"></i>Feiertag / frei</span>'+
+    '<span class="legpunkt"><i class="f-we"></i>Wochenende</span>'+
+    '<span class="legpunkt"><i class="f-heute"></i>heute</span>'+
+    '<span class="legpunkt"><i class="punkt-geplant"></i>geplant</span>'+
     '<span class="legpunkt"><i class="punkt-offen"></i>in Erfassung</span>'+
     '<span class="legpunkt"><i class="punkt-frei"></i>freigegeben</span></div>';
 
@@ -2755,8 +3408,8 @@ function ansKalender(){
   /* Ferienübersicht */
   h += '<div class="karte"><h2>Ferien und freie Tage in Bayern</h2>'+
     '<div class="ferienliste">'+
-    FERIEN.map(([n,a,b]) => '<div><b>'+esc(n)+'</b><span>'+datumDe(a)+' – '+datumDe(b)+'</span></div>').join('')+
-    Object.keys(FEIERTAGE).sort().map(d => '<div><b>'+esc(FEIERTAGE[d])+'</b><span>'+datumDe(d)+'</span></div>').join('')+
+    FERIEN.map(([n,a,b]) => '<div class="fe"><b>'+esc(n)+'</b><span>'+datumDe(a)+' – '+datumDe(b)+'</span></div>').join('')+
+    Object.keys(FEIERTAGE).sort().map(d => '<div class="ft"><b>'+esc(FEIERTAGE[d])+'</b><span>'+datumDe(d)+'</span></div>').join('')+
     '</div><p class="formhinweis" style="margin-top:12px">Bei der Planung werden diese Tage automatisch übersprungen.</p></div>';
 
   return h + '</section>';
@@ -2791,8 +3444,11 @@ function kalenderMonate(alle, nachTag){
       else if(grund) klassen.push('feiertag');
       if(ds === heuteStr) klassen.push('heute');
       if(liste.length) klassen.push('hat');
+      /* Ferienname am ersten Tag, an jedem Montag und am Monatsersten zeigen */
+      const ferienStart = ferien && (t === 1 || d.getDay() === 1 || FERIEN.some(([n,a]) => a === ds));
+      const etikett = (ferien && ferienStart) || (!ferien && grund) ? '<span class="mferien">'+esc(grund)+'</span>' : '';
       h += '<div class="'+klassen.join(' ')+'"'+(grund ? ' title="'+esc(grund)+'"' : '')+'>'+
-        '<span class="mnum">'+t+'</span>'+
+        '<span class="mnum">'+t+'</span>'+etikett+
         liste.map(e => {
           const g = D.gruppen[e.gid] || {};
           const st = { geplant:'kal-geplant', offen:'kal-offen', frei:'kal-frei' }[e.status] || 'kal-geplant';
@@ -2810,6 +3466,11 @@ function kalenderMonate(alle, nachTag){
 /* ---------- Liste ---------- */
 function kalenderListe(alle){
   const heuteStr = heute();
+  const von = alle[0].datum, bis = alle[alle.length-1].datum;
+  const frei = [];
+  FERIEN.forEach(([n,a,b]) => { if(b >= von && a <= bis) frei.push({ datum:a, bis:b, name:n, art:'ferien' }); });
+  Object.keys(FEIERTAGE).forEach(d => { if(d >= von && d <= bis && !FERIEN.some(([n,a,b]) => d >= a && d <= b)) frei.push({ datum:d, name:FEIERTAGE[d], art:'feiertag' }); });
+  alle = alle.concat(frei).sort((a,b) => a.datum.localeCompare(b.datum) || (a.art ? -1 : 1));
   let h = '<div class="karte" style="padding:0;overflow:auto"><table class="liste"><thead><tr>'+
     '<th style="width:170px">Datum</th><th style="width:70px">KW</th><th style="width:130px">Gruppe</th>'+
     '<th style="width:140px">Einheit</th><th>Thema</th><th style="width:130px" class="mitte">Status</th></tr></thead><tbody>';
@@ -2819,6 +3480,11 @@ function kalenderListe(alle){
     const mName = d.toLocaleDateString('de-DE', { month:'long', year:'numeric' });
     if(mName !== monat){ monat = mName;
       h += '<tr class="bereichzeile"><td colspan="6">'+esc(monat)+'</td></tr>'; }
+    if(e.art){
+      h += '<tr class="'+(e.art === 'ferien' ? 'ferienzeile' : 'feiertagzeile')+'"><td>'+WOCHENTAGE[d.getDay()].slice(0,2)+'. '+datumDe(e.datum)+
+        (e.bis ? ' – '+datumDe(e.bis) : '')+'</td><td>KW '+isoKW(d)+'</td><td colspan="4">'+esc(e.name)+(e.art === 'ferien' ? ' – keine AG' : '')+'</td></tr>';
+      return;
+    }
     const g = D.gruppen[e.gid] || {};
     h += '<tr style="cursor:pointer"'+(e.datum === heuteStr ? ' class="istheute"' : '')+' onclick="einheitOeffnen(\''+e.id+'\')">'+
       '<td><b>'+WOCHENTAGE[d.getDay()].slice(0,2)+'. '+datumDe(e.datum)+'</b></td>'+
@@ -2846,7 +3512,7 @@ function ansEinstellungen(){
   h += '<div class="karte"><h2>Zugänge für Dozent und Lehrkräfte</h2>'+
     '<p class="sub">Dozent darf alles. Lehrkräfte dürfen alles ihrer Gruppen lesen, aber nichts ändern. Schüler und Eltern brauchen keinen Zugang hier – sie nutzen PIN und Einsichtscode.</p>';
   if(!cloudAktiv) h += '<div class="hinweis gelb">Im lokalen Testmodus gibt es keine echten Zugänge. Richte zuerst Firebase ein.</div>';
-  h += '<div style="overflow:auto"><table class="liste"><thead><tr><th>E-Mail</th><th>Name</th><th>Rolle</th><th>Gruppen</th><th style="width:120px"></th></tr></thead><tbody>';
+  h += '<div style="overflow:auto"><table class="liste"><thead><tr><th>E-Mail</th><th>Name</th><th>Rolle</th><th>Gruppen</th><th style="width:220px"></th></tr></thead><tbody>';
   if(!ben.length) h += '<tr class="leer"><td colspan="5" class="sub">Noch keine Zugänge angelegt.</td></tr>';
   ben.forEach(b => h += '<tr><td><code>'+esc(b.mail)+'</code></td><td>'+esc(b.name||'')+'</td>'+
     '<td><span class="marke blau">'+esc(ROLLEN[b.rolle]||b.rolle)+'</span></td>'+
@@ -2856,6 +3522,7 @@ function ansEinstellungen(){
           ? esc(b.gruppen.map(g => (D.gruppen[g]||{}).name || g).join(', '))
           : '<span class="marke gelb">alle – nicht eingeschränkt</span>'))+'</td>'+
     '<td style="text-align:right">'+
+      (b.rolle === 'lehrkraft' ? '<button class="btn sek klein" onclick="alsLehrkraftAnsehen(\''+esc(b.mail)+'\')">Ansicht</button> ' : '')+
       (b.rolle === 'dozent' ? '' : '<button class="btn sek klein" onclick="gruppenZuweisen(\''+esc(b.mail)+'\')">Gruppen</button> ')+
       '<button class="btn sek klein" onclick="benutzerWeg(\''+esc(b.mail)+'\')">Entfernen</button></td></tr>');
   h += '</tbody></table></div>'+
@@ -2902,12 +3569,46 @@ function ansEinstellungen(){
     '<button class="btn sek" onclick="demoWeg()">Demo-Jahr löschen</button></div>'+
     '<p class="formhinweis">Die Beispielgruppe heißt „8.3.1 (Beispiel)“ und steht neben deinen echten Gruppen in der Auswahl oben.</p></div>';
 
+  h += '<div class="karte schmal"><h2>Elternbrief: Einwilligung Fotos und Notfallkontakte</h2>'+
+    '<p class="sub">Diese Angaben erscheinen im Brief. Drucken lässt er sich in der Übersicht und unter Gruppen.</p>'+
+    '<div class="feldreihe"><div><label>Ansprechpartner</label><input id="ebName" value="'+esc(e.briefName||'')+'" placeholder="David Omowanile"></div>'+
+    '<div><label>Telefon oder E-Mail für Rückfragen</label><input id="ebKontakt" value="'+esc(e.briefKontakt||'')+'"></div>'+
+    '<div><label>Rückgabe bis (freiwillig)</label><input id="ebFrist" value="'+esc(e.briefFrist||'')+'" placeholder="z. B. 09.12.2026"></div></div>'+
+    '<div class="werkzeuge"><button class="btn" onclick="elternbriefEinstSpeichern()">Speichern</button>'+
+    '<button class="btn sek" onclick="elternbriefVorschau()">Leeren Brief ansehen</button></div></div>';
+
+  h += '<div class="karte"><h2>Datenbestand für die neuen Regeln vorbereiten</h2>'+
+    '<p class="sub">Ab dieser Fassung tragen alle Anwesenheiten, Bewertungen, Arbeitsblätter und Fotos ihre Gruppe mit. '+
+    'Darauf prüfen die neuen Firestore-Regeln, dass Lehrkräfte wirklich nur ihre eigenen Gruppen sehen. '+
+    '<b>Einmal ausführen, bevor du die neuen Regeln unten in Firebase veröffentlichst.</b></p>'+
+    '<div class="werkzeuge"><button class="btn" onclick="bestandVorbereiten()">Jetzt vorbereiten</button>'+
+    '<span class="sub" style="margin:0">'+bestandOffen()+' Einträge ohne Gruppe</span></div></div>';
+
   h += '<div class="karte schmal"><h2>Datensicherung</h2><p class="sub" id="datenHinweis"></p>'+
     '<div class="werkzeuge"><button class="btn sek" onclick="sicherung()">Als Datei sichern</button>'+
     '<button class="btn sek" onclick="el(\'impFile\').click()">Sicherung einspielen</button>'+
     '<input type="file" id="impFile" accept="application/json" style="display:none" onchange="sicherungLaden(this)"></div></div>';
 
   return h + '</section>';
+}
+function elternbriefEinstSpeichern(){
+  schreibe([['set','einst','app', Object.assign({}, einst(), {
+    briefName: el('ebName').value.trim(), briefKontakt: el('ebKontakt').value.trim(), briefFrist: el('ebFrist').value.trim() })]])
+    .then(() => toast('Gespeichert'));
+}
+/* Ältere Einträge um die Gruppe ergänzen */
+function bestandListe(){
+  const ops = [];
+  ['anw','bew','antw','fotos','notfall','profilstatus'].forEach(c => Object.entries(D[c] || {}).forEach(([id,o]) => {
+    if(o && !o.gid){ const g = gidVon(c, o); if(g) ops.push(['set', c, id, Object.assign({}, o, { gid:g })]); }
+  }));
+  return ops;
+}
+const bestandOffen = () => bestandListe().length;
+function bestandVorbereiten(){
+  const ops = bestandListe();
+  if(!ops.length) return toast('Alles schon vorbereitet');
+  schreibe(ops).then(() => { toast(ops.length + ' Einträge ergänzt'); alles(); });
 }
 function einstSpeichern(){ schreibe([['set','einst','app', Object.assign({}, einst(), { url: el('stUrl').value.trim() })]]).then(() => toast('Gespeichert')); }
 function regelnKopieren(id){ const t = el(id); t.select(); try { document.execCommand('copy'); toast('Kopiert'); } catch(e){ toast('Bitte von Hand kopieren'); } }
@@ -3009,7 +3710,7 @@ function rechtePruefen(){
   zeilen.push(['Feld „rolle“', (mein && mein.rolle === 'dozent') ? 'ok' : 'prüfen',
     mein ? 'steht auf „' + mein.rolle + '“' + (mein.rolle === 'dozent' ? '' : ' – für volle Rechte muss hier genau dozent stehen') : '–']);
 
-  const sammlungen = ['gruppen','schueler','einheiten','anw','bew','antw','fotos','blaetter','einst','einsicht'];
+  const sammlungen = ['gruppen','schueler','einheiten','anw','bew','antw','fotos','blaetter','einst','einsicht','notfall','profilstatus'];
   const schritte = sammlungen.map(c => {
     const ref = db.collection(c).doc('_pruefung');
     return ref.set({ pruefung:true, zeit:new Date().toISOString() })
@@ -3048,47 +3749,74 @@ service cloud.firestore {
                        && exists(/databases/$(datenbank)/documents/benutzer/$(mail())); }
     function dozent(){ return drin() && ich().rolle == 'dozent'; }
     function tablet(){ return drin() && ich().rolle == 'tablet'; }
+    // Lehrkraft: nur die zugewiesenen Gruppen – ohne Zuweisung alle
+    function lkGruppe(g){ return drin() && ich().rolle == 'lehrkraft'
+                          && (!('gruppen' in ich()) || ich().gruppen.size() == 0 || g in ich().gruppen); }
+    function lesen(g){ return dozent() || tablet() || lkGruppe(g); }
 
-    // Zugaenge: jeder sieht seinen eigenen Eintrag, Dozent verwaltet alle
+    // Zugaenge: jeder sieht seinen eigenen Eintrag, der Dozent alle
     match /benutzer/{m} {
-      allow read:  if request.auth != null && (m == mail() || drin());
+      allow read:  if request.auth != null && (m == mail() || dozent());
       allow write: if dozent();
     }
-    // Stammdaten und Bewertung: Dozent schreibt, angemeldete Nutzer lesen
-    match /gruppen/{d}   { allow read: if drin(); allow write: if dozent(); }
-    match /schueler/{d}  { allow read: if drin(); allow write: if dozent(); }
-    match /einheiten/{d} { allow read: if drin(); allow write: if dozent(); }
-    match /anw/{d}       { allow read: if drin(); allow write: if dozent(); }
-    match /bew/{d}       { allow read: if drin(); allow write: if dozent(); }
+    // Stammdaten und Bewertung: nur Daten der eigenen Gruppen lesbar, nur der Dozent schreibt
+    match /gruppen/{d}   { allow read: if lesen(resource.data.id);  allow write: if dozent(); }
+    match /schueler/{d}  { allow read: if lesen(resource.data.gid); allow write: if dozent(); }
+    match /einheiten/{d} { allow read: if lesen(resource.data.gid); allow write: if dozent(); }
+    match /anw/{d}       { allow read: if lesen(resource.data.gid); allow write: if dozent(); }
+    match /bew/{d}       { allow read: if lesen(resource.data.gid); allow write: if dozent(); }
     match /einst/{d}     { allow read: if drin(); allow write: if dozent(); }
     // Arbeitsblaetter: auch das Gruppen-Tablet darf schreiben
-    match /antw/{d}      { allow read: if drin(); allow write: if dozent() || tablet(); }
-    // Arbeitsblaetter: auch ohne Anmeldung lesbar, damit die Einsicht sie anzeigen kann
+    match /antw/{d}      { allow read: if lesen(resource.data.gid); allow write: if dozent() || tablet(); }
+    // Vorlagen der Arbeitsblaetter: auch ohne Anmeldung lesbar, damit die Einsicht sie anzeigen kann
     match /blaetter/{d}  { allow read: if true; allow write: if dozent(); }
-    // Fotos: einzeln abrufbar, wenn man die Kennung kennt – auflisten nur intern
-    match /fotos/{id}      { allow get: if true; allow list: if drin();
-                             allow write: if dozent() || tablet(); }
+    // Fotos: einzeln abrufbar, wenn man die Kennung kennt – auflisten nur fuer die eigenen Gruppen
+    match /fotos/{id}    { allow get: if true; allow list: if lesen(resource.data.gid);
+                           allow write: if dozent() || tablet(); }
+    // Notfallkontakte: nur der Dozent liest, das Tablet darf eintragen
+    match /notfall/{sid}      { allow read: if dozent(); allow write: if dozent() || tablet(); }
+    match /profilstatus/{sid} { allow read: if dozent() || tablet(); allow write: if dozent() || tablet(); }
     // Einsicht fuer Eltern und Schueler: lesbar mit dem Code, schreibbar nur vom Dozenten
     match /einsicht/{code} { allow read: if true; allow write: if dozent(); }
   }
 }`;
 
 /* =====================================================================
-   Gruppen-Tablet: Schüler melden sich mit Namen und PIN an
+   Gruppen-Tablet: Schüler melden sich als Team mit Namen und PIN an.
+   Einer tippt, das Arbeitsblatt wird für jedes Teammitglied gespeichert.
    ===================================================================== */
 function standbyAn(){
   standbyAktiv = true; tabletSchueler = null;
   const g = gruppeAktiv();
   const sch = g ? schuelerDer(g.id) : [];
+  tabletTeam = tabletTeam.filter(sid => sch.some(s => s.id === sid));
   el('standbyBox').innerHTML = '<div class="standby"><div class="standbykarte">'+
     '<img src="'+LOGO+'" alt="IWB"><h2 style="margin:4px 0 2px">Technik-AG</h2>'+
     '<p class="sub">'+(g ? esc(g.name)+' · '+esc(g.schule||'') : 'Keine Gruppe ausgewählt')+'</p>'+
     (sch.length
-      ? '<p style="font-size:17px;margin-top:18px">Tippe deinen Namen an</p><div class="namen">'+
-        sch.map(s => '<button onclick="pinFragen(\''+s.id+'\')">'+esc(s.vorname)+'<br><span style="font-size:13px;font-weight:400;color:var(--text-hell)">'+esc(s.nachname)+'</span></button>').join('')+'</div>'
+      ? '<p style="font-size:18px;margin:16px 0 0"><b>Wer arbeitet heute zusammen?</b></p>'+
+        '<p class="sub" style="margin:4px 0 0">Jeder tippt seinen Namen an und gibt seine PIN ein. Ein Tipp auf einen grünen Namen nimmt ihn wieder heraus.</p>'+
+        '<div class="namen">'+sch.map(s => {
+          const u = profilUrl(s.id), dabei = tabletTeam.indexOf(s.id) > -1;
+          return '<button class="'+(dabei?'dabei':'')+'" onclick="'+(dabei ? 'teamRaus' : 'pinFragen')+'(\''+s.id+'\')">'+
+            (u ? '<img class="bild" src="'+esc(u)+'" alt="">' : '<span class="bild leer">'+esc((s.vorname||'?').charAt(0))+'</span>')+
+            esc(s.vorname)+'<br><span style="font-size:13px;font-weight:400;color:var(--text-hell)">'+esc(s.nachname)+'</span></button>';
+        }).join('')+'</div>'+
+        '<div class="teamleiste">'+(tabletTeam.length
+          ? tabletTeam.map(sid => '<span class="chip">'+esc((D.schueler[sid]||{}).vorname||'')+'</span>').join('')+
+            '<button class="btn gruen" style="font-size:16px;padding:12px 22px" onclick="teamStarten()">Los geht’s – '+
+            (tabletTeam.length === 1 ? 'allein' : tabletTeam.length+' im Team')+'</button>'
+          : '<span class="sub" style="margin:0">Noch niemand angemeldet.</span>')+'</div>'
       : '<div class="hinweis">In dieser Gruppe sind noch keine Schüler eingetragen.</div>')+
     '</div></div>';
 }
+function teamRaus(sid){ tabletTeam = tabletTeam.filter(x => x !== sid); standbyAn(); }
+function teamStarten(){
+  if(!tabletTeam.length) return;
+  tabletSchueler = tabletTeam[0]; standbyAktiv = false; el('standbyBox').innerHTML = ''; schuelerAnsicht();
+}
+function teamAbmelden(){ tabletTeam = []; tabletSchueler = null; window._blatt = null; standbyAn(); }
+
 let pinEingabe = '', pinSid = null;
 function pinFragen(sid){
   pinSid = sid; pinEingabe = '';
@@ -3109,75 +3837,136 @@ function pinTippe(z){
   pinEingabe += z; pinPunkte();
   if(pinEingabe.length === 4){
     const s = D.schueler[pinSid];
-    if(s && String(s.pin) === pinEingabe){ tabletSchueler = pinSid; standbyAktiv = false; el('standbyBox').innerHTML = ''; schuelerAnsicht(); }
-    else { el('pinPunkte').classList.add('falsch'); el('pinFehler').textContent = 'PIN stimmt nicht. Noch einmal versuchen.';
+    if(s && String(s.pin) === pinEingabe){
+      if(tabletTeam.indexOf(pinSid) < 0) tabletTeam.push(pinSid);
+      profilOderWeiter(pinSid);
+    } else { el('pinPunkte').classList.add('falsch'); el('pinFehler').textContent = 'PIN stimmt nicht. Noch einmal versuchen.';
       setTimeout(() => { pinEingabe = ''; pinPunkte(); const p = el('pinPunkte'); if(p) p.classList.remove('falsch'); }, 420); }
   }
 }
 function pinLoeschen(){ pinEingabe = pinEingabe.slice(0,-1); pinPunkte(); const f = el('pinFehler'); if(f) f.textContent = ''; }
 
+/* ---------- Profil: Foto und Notfallkontakt – nur mit Einwilligung der Eltern ---------- */
+const profilUebersprungen = {};
+let profilDaten = null;
+function profilFehlt(sid){
+  const s = D.schueler[sid] || {}, ew = s.ew || {};
+  return { foto: !!ew.intern && !D.fotos['profil_'+sid], notfall: !!ew.notfall && !(D.profilstatus[sid] || {}).notfall };
+}
+function profilOderWeiter(sid){
+  const n = profilFehlt(sid);
+  if((n.foto || n.notfall) && !profilUebersprungen[sid]) return profilSchritt(sid, n);
+  standbyAn();
+}
+function profilSchritt(sid, need){
+  const s = D.schueler[sid];
+  profilDaten = { sid, bild:'', need };
+  let h = '<div class="standby"><div class="standbykarte profilkarte">'+
+    '<h2 style="margin:0 0 4px">Hallo '+esc(s.vorname)+' – kurz noch dein Profil</h2>'+
+    '<p class="sub" style="text-align:center">Das dauert eine Minute. Deine Eltern haben zugestimmt, dass wir das speichern.</p>';
+  if(need.foto) h += '<h3>Dein Profilfoto</h3><p class="formhinweis">Damit die Betreuer dich sicher erkennen. Das Foto sehen nur die Betreuer der AG.</p>'+
+    '<div style="display:flex;gap:14px;align-items:center"><span id="pfVorschau"><span class="mini leer" style="width:72px;height:72px;font-size:26px;margin:0">?</span></span>'+
+    '<input type="file" accept="image/*" capture="user" id="pfDatei" style="display:none" onchange="profilBildGewaehlt(this)">'+
+    '<button class="btn sek" onclick="el(\'pfDatei\').click()">Foto machen</button></div>';
+  if(need.notfall) h += '<h3>Wen sollen wir im Notfall anrufen?</h3><p class="formhinweis">Zum Beispiel Mama, Papa oder Oma. '+
+    'Das sieht nur dein Betreuer – nach dem Speichern wird es hier nicht mehr angezeigt.</p>'+
+    [0,1].map(i => '<div class="feldreihe" style="margin-bottom:8px"><div><label>'+(i ? 'Zweite Person (freiwillig)' : 'Name')+'</label><input id="nfN'+i+'"></div>'+
+      '<div><label>Wer ist das?</label><input id="nfB'+i+'" placeholder="z. B. Mutter"></div>'+
+      '<div><label>Telefon</label><input id="nfT'+i+'" inputmode="tel"></div></div>').join('');
+  h += '<div class="werkzeuge" style="margin-top:16px;justify-content:flex-end"><button class="btn sek" onclick="profilSpaeter(\''+sid+'\')">Später</button>'+
+    '<button class="btn gruen" onclick="profilSpeichern()">Speichern</button></div></div></div>';
+  el('standbyBox').innerHTML = h;
+}
+function profilSpaeter(sid){ profilUebersprungen[sid] = true; profilDaten = null; standbyAn(); }
+function profilBildGewaehlt(inp){
+  const f = inp.files[0]; if(!f) return; inp.value = '';
+  quadratBild(f, 360).then(u => {
+    if(!u) return toast('Das Bild konnte nicht gelesen werden');
+    profilDaten.bild = u;
+    el('pfVorschau').innerHTML = '<img class="profilbild" style="width:72px;height:72px;margin:0" src="'+u+'" alt="">';
+  });
+}
+/* Bild quadratisch zuschneiden und klein rechnen */
+function quadratBild(datei, kante){
+  return new Promise(res => {
+    const img = new Image(), u = URL.createObjectURL(datei);
+    img.onload = () => {
+      URL.revokeObjectURL(u);
+      const m = Math.min(img.width, img.height), c = document.createElement('canvas'); c.width = c.height = kante;
+      c.getContext('2d').drawImage(img, (img.width-m)/2, (img.height-m)/2, m, m, 0, 0, kante, kante);
+      res(c.toDataURL('image/jpeg', .75));
+    };
+    img.onerror = () => res(''); img.src = u;
+  });
+}
+function profilSpeichern(){
+  const p = profilDaten; if(!p) return;
+  const s = D.schueler[p.sid], jetzt = new Date().toISOString(), ops = [];
+  if(p.need.foto && p.bild) ops.push(['set','fotos','profil_'+p.sid, { id:'profil_'+p.sid, sid:p.sid, gid:s.gid, art:'profil', name:'profil.jpg', d:p.bild, stand:jetzt }]);
+  if(p.need.notfall){
+    const k = [0,1].map(i => ({ name:el('nfN'+i).value.trim(), bez:el('nfB'+i).value.trim(), tel:el('nfT'+i).value.trim() })).filter(x => x.name || x.tel);
+    if(k.length){
+      if(!k[0].tel) return toast('Bitte eine Telefonnummer eintragen');
+      ops.push(['set','notfall', p.sid, { sid:p.sid, gid:s.gid, kontakte:k, stand:jetzt }]);
+      ops.push(['set','profilstatus', p.sid, { sid:p.sid, gid:s.gid, notfall:true, stand:jetzt }]);
+    }
+  }
+  if(!ops.length){ profilUebersprungen[p.sid] = true; profilDaten = null; return standbyAn(); }
+  schreibe(ops).then(() => {
+    ops.forEach(([a,c,id,o]) => { if(c !== 'notfall') D[c][id] = o; });   // sofort sichtbar, ohne auf den Server zu warten
+    profilDaten = null; toast('Danke, gespeichert'); standbyAn();
+  }).catch(() => toast('Das hat nicht geklappt'));
+}
+
 /* ---------- Schüleroberfläche ---------- */
 function schuelerAnsicht(){
-  const s = D.schueler[tabletSchueler]; if(!s) return standbyAn();
+  const team = tabletTeam.filter(sid => D.schueler[sid]);
+  if(!team.length) return standbyAn();
+  const s = D.schueler[team[0]];
   const g = D.gruppen[s.gid] || {};
   const eh = einheitenDer(s.gid);
   const aktuell = eh.filter(e => e.status === 'offen')[0]
     || eh.filter(e => e.status === 'geplant' && e.datum === heute())[0]
     || eh.filter(e => e.status !== 'frei')[0];
-  let h = '<section><div class="werkzeuge"><h1 style="margin:0">Hallo '+esc(s.vorname)+'</h1>'+
-    '<span class="marke blau">'+esc(g.name||'')+'</span><span style="margin-left:auto"></span>'+
-    '<button class="btn sek" onclick="standbyAn()">Fertig – abmelden</button></div>';
+  const vn = team.map(sid => D.schueler[sid].vorname);
+  const gruss = vn.length > 1 ? vn.slice(0,-1).join(', ') + ' und ' + vn[vn.length-1] : vn[0];
+  let h = '<section><div class="werkzeuge"><h1 style="margin:0">Hallo '+esc(gruss)+'</h1>'+
+    '<span class="marke blau">'+esc(g.name||'')+'</span>'+(team.length > 1 ? '<span class="marke gruen">Team aus '+team.length+'</span>' : '')+
+    '<span style="margin-left:auto"></span><button class="btn sek" onclick="teamAbmelden()">Fertig – abmelden</button></div>';
 
   if(aktuell){
     const bl = blatt(aktuell.nr);
     h += '<div class="karte"><h2>Heute: '+esc(nrText(aktuell.nr))+' – '+esc(aktuell.titel)+'</h2>';
-    h += bl ? schuelerBlattForm(aktuell, s, bl) : '<p class="sub">Für diese Einheit gibt es kein Arbeitsblatt.</p>';
+    h += bl ? schuelerBlattForm(aktuell, team, bl) : '<p class="sub">Für diese Einheit gibt es kein Arbeitsblatt.</p>';
     h += '</div>';
-  } else h += '<div class="karte"><div class="leerzustand"><b>Gerade läuft keine Einheit</b><p>Dein Betreuer gibt die Einheit frei, dann kannst du hier arbeiten.</p></div></div>';
+  } else h += '<div class="karte"><div class="leerzustand"><b>Gerade läuft keine Einheit</b><p>Dein Betreuer gibt die Einheit frei, dann könnt ihr hier arbeiten.</p></div></div>';
 
   const frei = eh.filter(e => e.status === 'frei');
   if(frei.length){
-    h += '<div class="karte"><h2>Was bisher war</h2><div style="overflow:auto"><table class="liste"><thead><tr><th>Einheit</th><th>Datum</th><th class="mitte">Dabei</th><th>Rückmeldung</th></tr></thead><tbody>';
-    frei.forEach(e => { const b = D.bew[e.id+'_'+s.id] || {}, a = D.anw[e.id+'_'+s.id] || {};
+    h += '<div class="karte"><h2>Was bisher war</h2><div style="overflow:auto"><table class="liste"><thead><tr><th>Einheit</th><th>Datum</th>'+
+      (team.length > 1 ? '<th>Wer</th>' : '')+'<th class="mitte">Dabei</th><th>Rückmeldung</th></tr></thead><tbody>';
+    frei.forEach(e => team.forEach(sid => { const b = D.bew[e.id+'_'+sid] || {}, a = D.anw[e.id+'_'+sid] || {};
       h += '<tr><td><b>'+esc(nrText(e.nr))+'</b></td><td>'+datumDe(e.datum)+'</td>'+
+        (team.length > 1 ? '<td>'+esc(D.schueler[sid].vorname)+'</td>' : '')+
         '<td class="mitte">'+(a.status==='da'?'<span class="marke gruen">ja</span>':a.status?'<span class="marke gelb">nein</span>':'–')+'</td>'+
-        '<td>'+esc(b.pos || b.bem || '–')+'</td></tr>'; });
+        '<td>'+esc(b.pos || b.bem || '–')+'</td></tr>'; }));
     h += '</tbody></table></div></div>';
   }
   el('haupt').innerHTML = h + '</section>';
-  el('navi').innerHTML = ''; el('gruppenWahl').style.display = 'none';
-  el('topBenutzer').textContent = s.vorname + ' ' + s.nachname;
+  el('navi').innerHTML = ''; el('gruppenWahl').style.display = 'none'; el('ansichtWahl').style.display = 'none';
+  el('topBenutzer').textContent = team.map(namenVon).join(', ');
 }
-function schuelerBlattForm(e, s, bl){
-  const k = e.id+'_'+s.id, t = D.antw[k] || { f:{}, fotos:[] };
-  if(t.ab) return '<div class="hinweis gruen">Du hast dein Arbeitsblatt abgegeben. Wenn du noch etwas ändern willst, sag deinem Betreuer Bescheid.</div>' + blattLesen(bl, t);
-  window._blatt = { eid:e.id, sid:s.id, f: Object.assign({}, t.f||{}), fotos:(t.fotos||[]).slice() };
-  let h = '<p class="sub">'+esc(bl.titel)+' – du kannst zwischendurch speichern und später weiterschreiben.</p>';
-  bl.felder.forEach(fd => {
-    h += '<h3>'+esc(fd.text)+'</h3>' + (fd.hinweis ? '<p class="formhinweis">'+esc(fd.hinweis)+'</p>' : '');
-    const v = (t.f||{})[fd.id];
-    if(fd.typ === 'tab'){
-      h += '<div style="overflow:auto"><table class="liste"><thead><tr><th></th>'+fd.spalten.map(c => '<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>';
-      fd.zeilen.forEach((z,zi) => { h += '<tr><td style="min-width:150px"><b>'+esc(z)+'</b></td>'+
-        fd.spalten.map((c,ci) => '<td><input value="'+esc((v||{})[zi+'_'+ci]||'')+'" oninput="blattTab(\''+fd.id+'\','+zi+','+ci+',this.value)"></td>').join('')+'</tr>'; });
-      h += '</tbody></table></div>';
-    } else if(fd.typ === 'check'){
-      h += fd.opt.map((o,i) => '<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text);margin-bottom:6px">'+
-        '<input type="checkbox" style="width:auto" '+((v||{})[i]?'checked':'')+' onchange="blattCheck(\''+fd.id+'\','+i+',this.checked)"> '+esc(o)+'</label>').join('');
-    } else if(fd.typ === 'wahl'){
-      h += fd.opt.map(o => '<label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text);margin-bottom:6px">'+
-        '<input type="radio" name="w_'+fd.id+'" style="width:auto" '+(v===o?'checked':'')+' onchange="blattSetzen(\''+fd.id+'\',\''+esc(o).replace(/'/g,"\\'")+'\')"> '+esc(o)+'</label>').join('');
-    } else if(fd.typ === 'foto'){
-      h += '<div id="fotoBox_'+fd.id+'">'+fotoListe(fd.id)+'</div>'+
-        '<input type="file" accept="image/*" capture="environment" id="fin_'+fd.id+'" style="display:none" onchange="fotoWaehlen(\''+fd.id+'\',this)">'+
-        '<button class="btn sek" onclick="el(\'fin_'+fd.id+'\').click()">Foto aufnehmen oder auswählen</button>';
-    } else if(fd.typ === 'kurz' || fd.typ === 'zahl'){
-      h += '<input '+(fd.typ==='zahl'?'type="number"':'')+' value="'+esc(v||'')+'" oninput="blattSetzen(\''+fd.id+'\',this.value)">';
-    } else {
-      h += '<textarea oninput="blattSetzen(\''+fd.id+'\',this.value)">'+esc(v||'')+'</textarea>';
-    }
-  });
-  h += '<div class="werkzeuge" style="margin-top:18px"><button class="btn sek" onclick="blattSpeichern(false)">Zwischenspeichern</button>'+
+function schuelerBlattForm(e, team, bl){
+  const antw = team.map(sid => D.antw[e.id+'_'+sid]).filter(Boolean);
+  const abg = antw.find(t => t.ab);
+  if(abg) return '<div class="hinweis gruen">Das Arbeitsblatt ist abgegeben. Wenn ihr noch etwas ändern wollt, sagt eurem Betreuer Bescheid.</div>' + blattLesen(bl, abg);
+  const t = antw.sort((a,b) => String(b.stand||'').localeCompare(String(a.stand||'')))[0] || { f:{}, fotos:[] };
+  window._blatt = { eid:e.id, sids:team.slice(), f:JSON.parse(JSON.stringify(t.f || {})), fotos:(t.fotos || []).slice(), bl };
+  let h = '<p class="sub">'+esc(bl.titel)+' – ihr könnt zwischendurch speichern und später weiterschreiben.</p>';
+  if(team.length > 1) h += '<div class="hinweis">Ihr arbeitet als Team: <b>'+esc(team.map(namenVon).join(', '))+
+    '</b>. Einer tippt – das Blatt wird für jeden von euch gespeichert.</div>';
+  h += blattHtml(bl, 'form', blattT());
+  h += '<div class="werkzeuge" style="margin-top:22px"><button class="btn sek" onclick="blattSpeichern(false)">Zwischenspeichern</button>'+
        '<button class="btn gruen" onclick="blattSpeichern(true)">Abgeben</button></div>';
   return h;
 }
@@ -3196,13 +3985,14 @@ function fotoWeg(feld, i){
 }
 function fotoWaehlen(feld, inp){
   const f = inp.files[0]; if(!f) return; inp.value = '';
+  if(!window._blatt || window._blatt.vorschau) return;
   if(f.size > 12 * 1024 * 1024) return toast('Das Bild ist zu groß');
   toast('Foto wird verarbeitet …');
   verkleinern(f).then(datenUrl => {
     const b = window._blatt;
     const id = uid();
     const eintrag = { feld, id, name:f.name };
-    const doku = { id, eid:b.eid, sid:b.sid, feld, name:f.name, d:datenUrl, stand:new Date().toISOString() };
+    const doku = { id, eid:b.eid, sid:b.sids[0], feld, name:f.name, d:datenUrl, stand:new Date().toISOString() };
     schreibe([['set','fotos', id, doku]]).then(() => {
       D.fotos[id] = doku;                       // sofort anzeigen, ohne auf den Server zu warten
       b.fotos.push(eintrag);
@@ -3236,10 +4026,11 @@ function verkleinern(datei){
   });
 }
 function blattSpeichern(abgeben, still){
-  const b = window._blatt; if(!b) return;
-  if(abgeben && !confirm('Arbeitsblatt abgeben?\n\nDanach kannst du es nicht mehr selbst ändern.')) return;
-  schreibe([['set','antw', b.eid+'_'+b.sid, { eid:b.eid, sid:b.sid, f:b.f, fotos:b.fotos, ab:!!abgeben, stand:new Date().toISOString() }]])
-    .then(() => { if(still) return; toast(abgeben ? 'Abgegeben – gut gemacht' : 'Gespeichert'); schuelerAnsicht(); });
+  const b = window._blatt; if(!b || b.vorschau) return;
+  if(abgeben && !confirm('Arbeitsblatt abgeben?\n\nDanach könnt ihr es nicht mehr selbst ändern.')) return;
+  const stand = new Date().toISOString();
+  const ops = b.sids.map(sid => ['set','antw', b.eid+'_'+sid, { eid:b.eid, sid, f:b.f, fotos:b.fotos, ab:!!abgeben, team:b.sids, stand }]);
+  schreibe(ops).then(() => { if(still) return; toast(abgeben ? 'Abgegeben – gut gemacht' : 'Gespeichert'); schuelerAnsicht(); });
 }
 
 /* =====================================================================
@@ -3247,7 +4038,7 @@ function blattSpeichern(abgeben, still){
    ===================================================================== */
 function elternStart(code){
   elternModus = true; elternCode = code;
-  el('navi').innerHTML = ''; el('gruppenWahl').style.display = 'none';
+  el('navi').innerHTML = ''; el('gruppenWahl').style.display = 'none'; el('ansichtWahl').style.display = 'none';
   el('haupt').innerHTML = '<section><div class="karte"><p class="sub">Einsicht wird geladen …</p></div></section>';
   if(cloudAktiv){
     db.collection('einsicht').doc(code).get()
@@ -3390,16 +4181,21 @@ function demoAntwort(nr, i, name){
            rueck: v(['Das Bauen hat Spaß gemacht, die Kabel waren zuerst verwirrend.',
                      'Am Anfang habe ich die Teile nicht gefunden, danach ging es schnell.',
                      'Ich wusste nicht, dass so viel Technik in dem Kasten steckt.']) },
-    '2': { meter:{ '0_0':'5.7','0_1': v(['93','88','104']),'0_2': v(['-7','-12','+4']),
-                   '1_0':'6.2','1_1': v(['99','96','101']),'1_2': v(['-1','-4','+1']),
-                   '2_0':'6.3','2_1':'100','2_2':'0' },
-           aender: v(['Wir haben den Wert nach jeder Fahrt ein bisschen größer gemacht.',
-                      'Zuerst zu wenig, dann haben wir gerechnet: eine Umdrehung sind etwa 17 cm.',
-                      'Wir haben die Geschwindigkeit runtergesetzt, dann war es viel genauer.']),
-           quadrat: v(['6','11','4']),
-           warum: v(['Die Räder rutschen beim Anfahren. Und der Boden ist nicht überall gleich.',
-                     'Weil die Motoren nicht exakt gleich laufen und das Fahrzeug leicht zieht.',
-                     'Beim Bremsen rollt es noch ein Stück weiter.']) },
+    '2': { progA:{ b:{0:true,1:true,2:true,3:true}, gesp:true, test:true },
+           progB:{ b:{0:true,1:true,2:true,3:true}, gesp:true, test:true },
+           ablauf:{0:true,1:true,2:true,3:true},
+           mess:{ '0_0': v(['92','88','104']),'0_1': v(['104','97','91']),'0_2': v(['97','101','98']),
+                  '1_0': v(['99','98','101']),'1_1': v(['101','100','100']),'1_2': v(['100','99','102']) },
+           naeher: v(['Programm B – Umdrehungen','Programm B – Umdrehungen','Programm A – Zeit']),
+           dichter:'Programm B – Umdrehungen',
+           warum: v(['Programm B zählt mit, wie oft sich die Räder drehen. Bei A wartet der Hub nur 3 Sekunden – wenn der Akku schwächer ist, kommt er nicht so weit.',
+                     'Bei B misst der Motor seine eigenen Umdrehungen. Bei A weiß der Hub nicht, wie weit er gefahren ist.',
+                     'Bei A rutschen die Räder und es ist egal, der Hub schaut nur auf die Zeit. B zählt die Räder mit.']),
+           wettbewerb: v(['Programm B, weil es jedes Mal fast gleich weit fährt.','B – darauf kann man sich verlassen.','B, weil A bei jedem Akkustand anders fährt.']),
+           halb:'2.85',
+           quadrat: (i % 2 === 0) ? { b:{0:true,1:true,2:true,3:true,4:true,5:true}, gesp:true, test:true } : undefined,
+           quadratAbst: (i % 2 === 0) ? v(['6','11','4']) : undefined,
+           _hilfe: v([{ progB:2, warum:1 }, { warum:2 }, {}]) },
     '3': { sens:{ '0_0':'Wenn man die Hand davor hält','0_1':'4 cm','0_2':'über 150 cm',
                   '1_0':'Wenn man andere Farben drunter legt','1_1':'schwarz','1_2':'weiß',
                   '2_0':'Wenn man den Hub kippt','2_1':'-90','2_2':'90' },
@@ -3487,7 +4283,8 @@ function demoJahr(){
   const sids = DEMO_SCHUELER.map(([v,n,kl], i) => {
     const id = 'demo_s' + i;
     ops.push(['set','schueler',id,{ id, gid, vorname:v, nachname:n, klasse:kl,
-      pin:String(1234 + i*111).slice(0,4), code:'DEMO' + String(i+1) + 'XY' + (i+3), aktiv:true }]);
+      pin:String(1234 + i*111).slice(0,4), code:'DEMO' + String(i+1) + 'XY' + (i+3), aktiv:true,
+      ew: i === 3 ? { datum:'2025-10-01', notfall:true } : { datum:'2025-10-01', intern:true, notfall:true, presse: i % 2 === 0, social: i === 0 } }]);
     return id;
   });
 
@@ -3614,15 +4411,33 @@ function firebaseBereit(codeTreffer){
     });
   } catch(e){ cloudStatus('Fehler bei der Verbindung', '#B3261E'); fehler(e); }
 }
-const SAMMLUNGEN = ['benutzer','gruppen','schueler','einheiten','anw','bew','antw','fotos','blaetter','einst'];
+const SAMMLUNGEN = ['benutzer','gruppen','schueler','einheiten','anw','bew','antw','fotos','blaetter','einst','notfall','profilstatus'];
+/* Je nach Rolle nur das laden, was die Firestore-Regeln erlauben:
+   Lehrkräfte mit zugewiesenen Gruppen bekommen gefilterte Abfragen. */
 function datenLauschen(){
-  let offen = SAMMLUNGEN.length;
-  SAMMLUNGEN.forEach(c => {
-    db.collection(c).onSnapshot(s => {
-      const o = {}; s.forEach(d => o[d.id] = d.data()); D[c] = o;
-      if(offen > 0){ offen--; if(offen === 0) nachAnmeldung(); } else rolleAnwenden(true);
-    }, e => { console.warn(c, e.code); if(offen > 0){ offen--; if(offen === 0) nachAnmeldung(); } });
-  });
+  db.collection('benutzer').doc(meineMail).get().then(d => {
+    const ich = d.exists ? d.data() : null;
+    D.benutzer = ich ? { [meineMail]: ich } : {};
+    if(!ich){ geladen = true; return rolleAnwenden(); }
+    const r = ich.rolle;
+    const lk = (r === 'lehrkraft' && (ich.gruppen || []).length) ? ich.gruppen.slice(0, 30) : null;
+    const quellen = [];
+    const alle = c => db.collection(c);
+    quellen.push(['benutzer', r === 'dozent' ? alle('benutzer') : db.collection('benutzer').doc(meineMail)]);
+    quellen.push(['gruppen', lk ? alle('gruppen').where('id','in',lk) : alle('gruppen')]);
+    ['schueler','einheiten','anw','bew','antw','fotos'].forEach(c =>
+      quellen.push([c, lk ? alle(c).where('gid','in',lk) : alle(c)]));
+    quellen.push(['blaetter', alle('blaetter')], ['einst', alle('einst')]);
+    if(r === 'dozent') quellen.push(['notfall', alle('notfall')]);
+    if(r === 'dozent' || r === 'tablet') quellen.push(['profilstatus', alle('profilstatus')]);
+    let offen = quellen.length;
+    const fertig = () => { if(offen > 0){ offen--; if(offen === 0) nachAnmeldung(); } else rolleAnwenden(true); };
+    quellen.forEach(([c, q]) => q.onSnapshot(sn => {
+      const o = {};
+      if(sn.forEach) sn.forEach(x => o[x.id] = x.data()); else if(sn.exists) o[sn.id] = sn.data();
+      D[c] = o; fertig();
+    }, e => { console.warn(c, e.code); if(offen > 0){ offen--; if(offen === 0) nachAnmeldung(); } }));
+  }).catch(e => { fehler(e); geladen = true; rolleAnwenden(); });
 }
 function nachAnmeldung(){ geladen = true; rolleAnwenden(); }
 function rolleAnwenden(nurZeichnen){
@@ -3672,13 +4487,14 @@ function abmelden(){ if(cloudAktiv && fbAuth) fbAuth.signOut(); }
 function testRolleSetzen(r, still){
   try { sessionStorage.setItem('iwbTestRolle', r); } catch(e){}
   elternModus = false; tabletKonto = false; tabletSchueler = null; standbyAktiv = false;
+  tabletTeam = []; dozentStand = null; vorschauLk = null; meineMail = 'lokal';
   el('standbyBox').innerHTML = ''; schliesse();
   if(r === 'eltern'){
     const erster = Object.values(D.schueler)[0];
     if(!erster) { rolle = 'dozent'; meinName = 'Dozent (Test)'; alles(); return toast('Erst Beispieldaten laden'); }
     rolle = 'keine'; meinName = ''; return elternStart(erster.code);
   }
-  if(r === 'tablet'){ tabletKonto = true; rolle = 'tablet'; meinName = 'Gruppen-Tablet'; return standbyAn(); }
+  if(r === 'tablet'){ tabletKonto = true; rolle = 'tablet'; meinName = 'Gruppen-Tablet'; el('ansichtWahl').style.display = 'none'; return standbyAn(); }
   rolle = r; meinName = { dozent:'Dozent (Test)', lehrkraft:'Lehrkraft (Test)' }[r] || r;
   if(!still) toast('Ansicht als ' + (ROLLEN[r] || r));
   alles();
@@ -3691,9 +4507,12 @@ function beispieldaten(){
   const gid = uid();
   const ops = [['set','gruppen',gid,{ id:gid, name:'8.3.1', schule:'Realschule Bobingen', schuljahr:'2026/27', jahrgang:8 }]];
   const namen = [['Mia','Ahrens'],['Luca','Berger'],['Emir','Demir'],['Sophie','Graf'],['Jonas','Keller'],['Lea','Wagner']];
-  const sids = namen.map(([v,n]) => { const id = uid();
+  const sids = namen.map(([v,n], i) => { const id = uid();
     ops.push(['set','schueler',id,{ id, gid, vorname:v, nachname:n, klasse:'8a',
-      pin:String(1000 + Math.floor(Math.random()*8999)), code:neuerCode(8), aktiv:true }]); return id; });
+      pin:String(1111 * ((i % 9) + 1)), code:neuerCode(8), aktiv:true,
+      ew: i < 4 ? { datum:heute(), intern:true, notfall:true } : {} }]); return id; });
+  /* Eine Beispiel-Lehrkraft, damit sich „Ansicht als Lehrkraft“ ausprobieren lässt */
+  ops.push(['set','benutzer','lehrkraft@beispiel.de',{ mail:'lehrkraft@beispiel.de', name:'Frau Beispiel (Lehrkraft)', rolle:'lehrkraft', gruppen:[gid] }]);
   const basis = new Date(); basis.setDate(basis.getDate() - 28);
   const eids = EINHEIT_VORLAGE.map(([nr,t], i) => {
     const d = new Date(basis); d.setDate(d.getDate() + i*14);
